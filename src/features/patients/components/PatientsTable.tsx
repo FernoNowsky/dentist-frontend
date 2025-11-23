@@ -11,7 +11,7 @@ import type { UserResponseDto } from "@/types/api";
 import { FileText, Plus } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { CreateVisitDialog } from "./CreateVisitDialog";
+import { CreateVisitDialog } from "@/features/visits/components/CreateVisitDialog";
 
 interface PatientsTableProps {
     data: UserResponseDto[];

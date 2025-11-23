@@ -2,12 +2,11 @@ import { useParams } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api";
 import type { UserResponseDto } from "@/types/api";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
 import { Navbar } from "@/components/layout/Navbar";
+import { CreateVisitDialog } from "@/features/visits/components/CreateVisitDialog";
 
 export function PatientDetailsPage() {
     const { id } = useParams({ from: "/patients/$id" });
@@ -15,18 +14,7 @@ export function PatientDetailsPage() {
     const { data: patient, isLoading } = useQuery({
         queryKey: ["patient", id],
         queryFn: async () => {
-            // Mock data
-            await new Promise(resolve => setTimeout(resolve, 300));
-            return {
-                id: id,
-                keycloakId: "mock-k-1",
-                firstName: "Jan",
-                lastName: "Kowalski",
-                email: "jan.kowalski@example.com",
-                role: "USER",
-                pesel: "90010112345",
-                phoneNumber: "123456789"
-            } as UserResponseDto;
+            return apiRequest<UserResponseDto>(`/users/${id}`);
         },
     });
 
@@ -47,12 +35,13 @@ export function PatientDetailsPage() {
                     <div>
                         <h1 className="text-2xl font-bold">Karta pacjenta</h1>
                         <p className="text-muted-foreground">
-                            {patient.firstName} {patient.lastName} | PESEL: {patient.pesel}
+                            {patient.firstName} {patient.lastName} | PESEL: {patient.pesel || "Brak"}
                         </p>
                     </div>
-                    <Button className="bg-black text-white hover:bg-gray-800">
-                        <Plus className="mr-2 h-4 w-4" /> Utwórz wizytę
-                    </Button>
+                    <CreateVisitDialog
+                        patientId={patient.id}
+                        patientName={`${patient.firstName} ${patient.lastName}`}
+                    />
                 </div>
 
                 <Tabs defaultValue="personal" className="w-full">
@@ -81,11 +70,11 @@ export function PatientDetailsPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Data urodzenia</Label>
-                                    <Input value="11.10.2025" readOnly />
+                                    <Input value="-" readOnly />
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Płeć</Label>
-                                    <Input value="Mężczyzna" readOnly />
+                                    <Input value="-" readOnly />
                                 </div>
                             </div>
 
@@ -93,32 +82,32 @@ export function PatientDetailsPage() {
                                 <h3 className="font-semibold text-lg">Dane kontaktowe</h3>
                                 <div className="space-y-2">
                                     <Label>Telefon</Label>
-                                    <Input value={patient.phoneNumber || "605321234"} readOnly />
+                                    <Input value={patient.phoneNumber || ""} readOnly />
                                 </div>
 
                                 <h3 className="font-semibold text-lg mt-8">Adres zamieszkania</h3>
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="col-span-1 space-y-2">
                                         <Label>Ulica</Label>
-                                        <Input value="Morska" readOnly />
+                                        <Input value="-" readOnly />
                                     </div>
                                     <div className="col-span-1 space-y-2">
                                         <Label>Numer domu</Label>
-                                        <Input value="10" readOnly />
+                                        <Input value="-" readOnly />
                                     </div>
                                     <div className="col-span-1 space-y-2">
                                         <Label>Numer mieszkania</Label>
-                                        <Input value="23" readOnly />
+                                        <Input value="-" readOnly />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="col-span-1 space-y-2">
                                         <Label>Miejscowość</Label>
-                                        <Input value="Warszawa" readOnly />
+                                        <Input value="-" readOnly />
                                     </div>
                                     <div className="col-span-1 space-y-2">
                                         <Label>Kod pocztowy</Label>
-                                        <Input value="63-321" readOnly />
+                                        <Input value="-" readOnly />
                                     </div>
                                 </div>
                             </div>

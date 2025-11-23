@@ -68,7 +68,8 @@ export interface VisitResponseDto {
 export interface VisitCreateDto {
     patientId: string;
     doctorId: string;
-    date: string;
+    dateTimeStart: string;
+    dateTimeEnd: string;
 }
 
 export interface VisitUpdateDto {
