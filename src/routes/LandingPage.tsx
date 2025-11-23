@@ -6,10 +6,16 @@ import { Calendar, Users, ClipboardList, Activity } from 'lucide-react';
 import heroImage from '@/assets/dental_clinic.png';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useAuth } from 'react-oidc-context';
+import { useEffect } from 'react';
 
 export const LandingPage = () => {
     const auth = useAuth();
     const navigate = useNavigate();
+    useEffect(() => {
+        if (auth.isAuthenticated) {
+            navigate({ to: '/dashboard' });
+        }
+    }, [auth.isAuthenticated, navigate]);
 
     return (
         <div className="min-h-screen bg-background flex flex-col">

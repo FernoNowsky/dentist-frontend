@@ -3,12 +3,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Clock, Database, Smartphone } from 'lucide-react';
-import { Link, useNavigate } from '@tanstack/react-router';
+import { useNavigate } from '@tanstack/react-router';
 import { useAuth } from 'react-oidc-context';
+import { useEffect } from 'react';
 
 export const AboutPage = () => {
     const auth = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        if (auth.isAuthenticated) {
+            navigate({ to: '/dashboard' });
+        }
+    }, [auth.isAuthenticated, navigate]);
 
     return (
         <div className="min-h-screen bg-background flex flex-col">

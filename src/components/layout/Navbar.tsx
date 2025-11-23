@@ -36,7 +36,11 @@ export function Navbar() {
                 </>
             )}
             <Button
-                onClick={() => auth.signoutRedirect()}
+                onClick={() => {
+                    auth.signoutRedirect({
+                        post_logout_redirect_uri: window.location.origin,
+                    });
+                }}
                 className="w-full md:w-auto"
                 variant="outline"
             >
