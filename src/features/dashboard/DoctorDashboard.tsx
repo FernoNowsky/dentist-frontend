@@ -4,129 +4,43 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
 import { apiRequest } from "@/lib/api";
 import { useQuery } from "@tanstack/react-query";
-import type { VisitResponseDto } from "@/types/api";
+import type { VisitResponseDto, PageResponseDto, VisitPageRequestDto } from "@/types/api";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
+import { useUserCheck } from "@/features/auth/hooks/useUserCheck";
 
 export function DoctorDashboard() {
     const [date, setDate] = useState<Date | undefined>(new Date());
+    const { data: currentUser } = useUserCheck();
 
-    const { data: visits } = useQuery({
-        queryKey: ["visits", date],
+    const { data: visitsResponse, isLoading } = useQuery({
+        queryKey: ["visits", date, currentUser?.id],
         queryFn: async () => {
-            return apiRequest<{ content: VisitResponseDto[] }>("/visits", { params: { size: 100 } });
+            if (!date || !currentUser?.id) return null;
+
+            const now = new Date();
+            const isToday = date.toDateString() === now.toDateString();
+
+            const startOfDay = new Date(date);
+            startOfDay.setHours(0, 0, 0, 0);
+            const dateTimeStart = isToday ? now : startOfDay;
+
+            const endOfDay = new Date(date);
+            endOfDay.setHours(23, 59, 59, 999);
+
+            const params: VisitPageRequestDto = {
+                dateTimeStart: dateTimeStart.toISOString(),
+                dateTimeEnd: endOfDay.toISOString(),
+                doctorId: currentUser.id,
+                size: 100,
+            };
+
+            return apiRequest<PageResponseDto<VisitResponseDto>>("/visits", { params });
         },
+        enabled: !!date && !!currentUser?.id,
     });
 
-    const fetchedVisits = visits?.content || [];
-
-    // Mock data
-    const mockVisits: VisitResponseDto[] = [
-        {
-            id: "mock-1",
-            patientId: "99072077618",
-            doctorId: "doc-1",
-            date: new Date().toISOString(), // Today
-            status: "SCHEDULED",
-            patientName: "Izabela Makłowicz",
-        },
-        {
-            id: "mock-2",
-            patientId: "82061671654",
-            doctorId: "doc-1",
-            date: new Date(new Date().setHours(new Date().getHours() + 1)).toISOString(), // Today + 1h
-            status: "SCHEDULED",
-            patientName: "Mikołaj Konieczny",
-        },
-        {
-            id: "mock-3",
-            patientId: "90010112345",
-            doctorId: "doc-1",
-            date: new Date(new Date().setHours(new Date().getHours() + 2)).toISOString(),
-            status: "SCHEDULED",
-            patientName: "Jan Kowalski",
-        },
-        {
-            id: "mock-4",
-            patientId: "92030354321",
-            doctorId: "doc-1",
-            date: new Date(new Date().setHours(new Date().getHours() + 3)).toISOString(),
-            status: "SCHEDULED",
-            patientName: "Anna Nowak",
-        },
-        {
-            id: "mock-5",
-            patientId: "85051509876",
-            doctorId: "doc-1",
-            date: new Date(new Date().setHours(new Date().getHours() + 4)).toISOString(),
-            status: "SCHEDULED",
-            patientName: "Piotr Zieliński",
-        },
-        {
-            id: "mock-6",
-            patientId: "88080812345",
-            doctorId: "doc-1",
-            date: new Date(new Date().setHours(new Date().getHours() + 5)).toISOString(),
-            status: "SCHEDULED",
-            patientName: "Katarzyna Wiśniewska",
-        },
-        {
-            id: "mock-7",
-            patientId: "75050598765",
-            doctorId: "doc-1",
-            date: new Date(new Date().setHours(new Date().getHours() + 6)).toISOString(),
-            status: "SCHEDULED",
-            patientName: "Marek Wójcik",
-        },
-        {
-            id: "mock-8",
-            patientId: "95020211223",
-            doctorId: "doc-1",
-            date: new Date(new Date().setHours(new Date().getHours() + 7)).toISOString(),
-            status: "SCHEDULED",
-            patientName: "Magdalena Kamińska",
-        },
-        {
-            id: "mock-9",
-            patientId: "80010133445",
-            doctorId: "doc-1",
-            date: new Date(new Date().setHours(new Date().getHours() + 8)).toISOString(),
-            status: "SCHEDULED",
-            patientName: "Tomasz Lewandowski",
-        },
-        {
-            id: "mock-10",
-            patientId: "98090955667",
-            doctorId: "doc-1",
-            date: new Date(new Date().setHours(new Date().getHours() + 9)).toISOString(),
-            status: "SCHEDULED",
-            patientName: "Agnieszka Szymańska",
-        },
-        {
-            id: "mock-11",
-            patientId: "83030377889",
-            doctorId: "doc-1",
-            date: new Date(new Date().setHours(new Date().getHours() + 10)).toISOString(),
-            status: "SCHEDULED",
-            patientName: "Krzysztof Dąbrowski",
-        },
-        {
-            id: "mock-12",
-            patientId: "91040499001",
-            doctorId: "doc-1",
-            date: new Date(new Date().setHours(new Date().getHours() + 11)).toISOString(),
-            status: "SCHEDULED",
-            patientName: "Ewa Kozłowska",
-        },
-    ];
-
-    const displayVisits = fetchedVisits.length > 0 ? fetchedVisits : mockVisits;
-
-    const todayVisits = displayVisits.filter(v => {
-        if (!date) return false;
-        const visitDate = new Date(v.date);
-        return visitDate.toDateString() === date.toDateString();
-    });
+    const visits = visitsResponse?.content || [];
 
     return (
         <div className="flex flex-col lg:flex-row gap-8 h-auto lg:h-[calc(100vh-80px)] overflow-hidden pt-8">
@@ -139,21 +53,23 @@ export function DoctorDashboard() {
                 </p>
 
                 <div className="space-y-4 overflow-y-auto flex-1 pr-4">
-                    {todayVisits.length === 0 ? (
+                    {isLoading ? (
+                        <div className="text-muted-foreground">Ładowanie...</div>
+                    ) : visits.length === 0 ? (
                         <div className="text-muted-foreground">Brak wizyt na ten dzień.</div>
                     ) : (
-                        todayVisits.map((visit) => (
+                        visits.map((visit) => (
                             <Card key={visit.id}>
-                                <CardContent className="p-6 flex justify-between items-center">
+                                <CardContent className="p-6 flex flex-col justify-between">
                                     <div>
                                         <h3 className="font-bold text-lg">
-                                            {visit.patientName || "Pacjent"}, {format(new Date(visit.date), "d MMMM yyyy, HH:mm", { locale: pl })}
+                                            {visit.patient.firstName} {visit.patient.lastName}, {format(new Date(visit.dateTimeStart), "d MMMM yyyy, HH:mm", { locale: pl })}
                                         </h3>
-                                        <p className="text-muted-foreground text-sm">PESEL: {visit.patientId}</p>
+                                        <p className="text-muted-foreground text-sm">PESEL: {visit.patient.pesel || "Brak"}</p>
                                     </div>
-                                    <div className="flex gap-2 flex-col sm:flex-row">
+                                    <div className="flex gap-2 flex-col sm:flex-row mt-4 justify-between">
                                         <Button>Przeprowadź wizytę</Button>
-                                        <Button variant="outline" className="text-destructive border-destructive hover:bg-destructive/10">
+                                        <Button variant="outline" className="text-destructive border-destructive hover:text-destructive hover:bg-destructive/10">
                                             Odwołaj wizytę
                                         </Button>
                                     </div>

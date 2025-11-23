@@ -18,11 +18,8 @@ import { Plus, Calendar, Clock, User, Stethoscope } from "lucide-react";
 import { type VisitCreateDto, type UserResponseDto } from "@/types/api";
 
 interface CreateVisitDialogProps {
-    // Legacy props for uncontrolled mode
     patientId?: string;
     patientName?: string;
-
-    // Props for controlled mode
     patient?: UserResponseDto | null;
     open?: boolean;
     onOpenChange?: (open: boolean) => void;
@@ -79,7 +76,6 @@ export function CreateVisitDialog({
             return;
         }
 
-        // Combine date and time into ISO string
         const startDateTime = new Date(`${date}T${time}:00`);
         const endDateTime = new Date(startDateTime.getTime() + 60 * 60 * 1000);
 
@@ -91,14 +87,12 @@ export function CreateVisitDialog({
         });
     };
 
-    // Calculate min date (today)
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
     const minDate = `${year}-${month}-${day}`;
 
-    // Calculate min time if date is today
     const currentHours = String(now.getHours()).padStart(2, '0');
     const currentMinutes = String(now.getMinutes()).padStart(2, '0');
     const minTime = date === minDate ? `${currentHours}:${currentMinutes}` : undefined;

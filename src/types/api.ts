@@ -58,11 +58,23 @@ export interface PatientCreateDto {
 
 export interface VisitResponseDto {
     id: string;
-    patientId: string;
-    doctorId: string;
-    date: string; // ISO string
+    dateTimeStart: string;
+    dateTimeEnd: string;
     status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
-    patientName?: string; // for testing purposes
+    comment?: string;
+    totalCost?: number;
+    createdAt: string;
+    updatedAt: string;
+    patient: UserResponseDto;
+    doctor: UserResponseDto;
+}
+
+export interface VisitPageRequestDto extends PageRequestDto {
+    dateTimeStart?: string;
+    dateTimeEnd?: string;
+    doctorId?: string;
+    patientId?: string;
+    status?: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
 }
 
 export interface VisitCreateDto {
