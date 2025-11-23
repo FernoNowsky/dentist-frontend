@@ -2,6 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "react-oidc-context";
 import { Menu } from "lucide-react";
+import logo from '@/assets/dentist_plus_logo.png';
 import {
     Sheet,
     SheetContent,
@@ -26,8 +27,8 @@ export function Navbar() {
                     <Button variant="ghost" asChild className="w-full justify-start md:w-auto">
                         <Link to="/dashboard" onClick={() => setIsOpen(false)}>Kalendarz</Link>
                     </Button>
-                    <Button variant="ghost" className="w-full justify-start md:w-auto">
-                        Wizyty
+                    <Button variant="ghost" asChild className="w-full justify-start md:w-auto">
+                        <Link to="/dashboard" onClick={() => setIsOpen(false)}>Wizyty</Link>
                     </Button>
                     <Button variant="ghost" asChild className="w-full justify-start md:w-auto">
                         <Link to="/patients" onClick={() => setIsOpen(false)}>Pacjenci</Link>
@@ -37,6 +38,7 @@ export function Navbar() {
             <Button
                 onClick={() => auth.signoutRedirect()}
                 className="w-full md:w-auto"
+                variant="outline"
             >
                 Wyloguj się
             </Button>
@@ -44,14 +46,15 @@ export function Navbar() {
     );
 
     return (
-        <header className="border-b bg-background">
-            <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+        <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50">
+            <div className="container mx-auto px-4 md:px-6 py-4 flex justify-between items-center">
                 <div className="flex items-center gap-2">
-                    <Link to="/dashboard" className="font-bold text-xl">
-                        DentistApp
+                    <Link to="/dashboard" className="flex items-center gap-2">
+                        <img src={logo} alt="Dentist+ Logo" className="h-10 w-auto bg-transparent" />
+                        <span className="text-xl font-bold text-primary hidden sm:inline-block">Dentist+</span>
                     </Link>
                     {user && (
-                        <div className="hidden md:block text-sm text-muted-foreground ml-4">
+                        <div className="hidden md:block text-sm text-muted-foreground ml-4 border-l pl-4">
                             Witaj, <span className="font-semibold text-foreground">{user.firstName}</span>
                         </div>
                     )}

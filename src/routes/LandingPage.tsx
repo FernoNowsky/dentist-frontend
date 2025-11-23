@@ -4,9 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { motion } from 'framer-motion';
 import { Calendar, Users, ClipboardList, Activity } from 'lucide-react';
 import heroImage from '@/assets/dental_clinic.png';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { useAuth } from 'react-oidc-context';
 
 export const LandingPage = () => {
+    const auth = useAuth();
+    const navigate = useNavigate();
+
     return (
         <div className="min-h-screen bg-background flex flex-col">
             <Navbar />
@@ -27,11 +31,19 @@ export const LandingPage = () => {
                             Ten system wspiera zarządzanie placówką dentystyczną poprzez kompleksową obsługę pacjentów, wizyt oraz personelu. Zwiększ efektywność swojego gabinetu już dziś.
                         </p>
                         <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                            <Link to="/dashboard">
-                                <Button size="lg" className="text-lg px-8 w-full sm:w-auto">
-                                    Rozpocznij
-                                </Button>
-                            </Link>
+                            <Button
+                                size="lg"
+                                className="text-lg px-8 w-full sm:w-auto"
+                                onClick={() => {
+                                    if (auth.isAuthenticated) {
+                                        navigate({ to: '/dashboard' });
+                                    } else {
+                                        auth.signinRedirect();
+                                    }
+                                }}
+                            >
+                                Rozpocznij
+                            </Button>
                             <Link to="/about">
                                 <Button variant="outline" size="lg" className="text-lg px-8 w-full sm:w-auto border-primary text-primary hover:bg-primary/10">
                                     Dowiedz się więcej

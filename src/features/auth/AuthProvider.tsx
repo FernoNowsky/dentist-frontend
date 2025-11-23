@@ -7,6 +7,7 @@ const oidcConfig: AuthProviderProps = {
     redirect_uri: window.location.origin,
     onSigninCallback: () => {
         window.history.replaceState({}, document.title, window.location.pathname);
+        window.location.href = '/dashboard';
     },
 };
 

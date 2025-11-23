@@ -3,9 +3,13 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { ShieldCheck, Clock, Database, Smartphone } from 'lucide-react';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate } from '@tanstack/react-router';
+import { useAuth } from 'react-oidc-context';
 
 export const AboutPage = () => {
+    const auth = useAuth();
+    const navigate = useNavigate();
+
     return (
         <div className="min-h-screen bg-background flex flex-col">
             <Navbar />
@@ -75,11 +79,19 @@ export const AboutPage = () => {
                     </section>
 
                     <div className="text-center pt-8">
-                        <Link to="/dashboard">
-                            <Button size="lg" className="text-lg px-8">
-                                Rozpocznij pracę z systemem
-                            </Button>
-                        </Link>
+                        <Button
+                            size="lg"
+                            className="text-lg px-8"
+                            onClick={() => {
+                                if (auth.isAuthenticated) {
+                                    navigate({ to: '/dashboard' });
+                                } else {
+                                    auth.signinRedirect();
+                                }
+                            }}
+                        >
+                            Rozpocznij pracę z systemem
+                        </Button>
                     </div>
                 </motion.div>
             </main>

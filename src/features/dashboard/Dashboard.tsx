@@ -59,8 +59,18 @@ export function Dashboard() {
         }
     }, [shouldCreateDentist, auth.user?.profile]);
 
+    useEffect(() => {
+        if (!auth.isLoading && !auth.isAuthenticated) {
+            auth.signinRedirect();
+        }
+    }, [auth.isLoading, auth.isAuthenticated, auth]);
+
+    if (auth.isLoading || !auth.isAuthenticated) {
+        return <div>Loading authentication...</div>;
+    }
+
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <div>Loading user data...</div>;
     }
 
     // If user needs to complete profile
