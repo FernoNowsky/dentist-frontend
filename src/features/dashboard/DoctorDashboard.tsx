@@ -2,9 +2,20 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { apiRequest } from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
-import type { VisitResponseDto, PageResponseDto, VisitPageRequestDto } from "@/types/api";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { VisitResponseDto, PageResponseDto, VisitPageRequestDto, VisitUpdateDto } from "@/types/api";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { useUserCheck } from "@/features/auth/hooks/useUserCheck";
@@ -12,6 +23,7 @@ import { useUserCheck } from "@/features/auth/hooks/useUserCheck";
 export function DoctorDashboard() {
     const [date, setDate] = useState<Date | undefined>(new Date());
     const { data: currentUser } = useUserCheck();
+    const queryClient = useQueryClient();
 
     const { data: visitsResponse, isLoading } = useQuery({
         queryKey: ["visits", date, currentUser?.id],
@@ -32,12 +44,28 @@ export function DoctorDashboard() {
                 dateTimeStart: dateTimeStart.toISOString(),
                 dateTimeEnd: endOfDay.toISOString(),
                 doctorId: currentUser.id,
+                status: "PLANNED",
                 size: 100,
             };
 
             return apiRequest<PageResponseDto<VisitResponseDto>>("/visits", { params });
         },
         enabled: !!date && !!currentUser?.id,
+    });
+
+    const cancelVisitMutation = useMutation({
+        mutationFn: async (visitId: string) => {
+            const updateData: VisitUpdateDto = {
+                status: "CANCELED",
+            };
+            return apiRequest(`/visits/${visitId}`, {
+                method: "put",
+                data: updateData,
+            });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["visits"] });
+        },
     });
 
     const visits = visitsResponse?.content || [];
@@ -69,9 +97,30 @@ export function DoctorDashboard() {
                                     </div>
                                     <div className="flex gap-2 flex-col sm:flex-row mt-4 justify-between">
                                         <Button>Przeprowadź wizytę</Button>
-                                        <Button variant="outline" className="text-destructive border-destructive hover:text-destructive hover:bg-destructive/10">
-                                            Odwołaj wizytę
-                                        </Button>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                                <Button variant="outline" className="text-destructive border-destructive hover:text-destructive hover:bg-destructive/10">
+                                                    Odwołaj wizytę
+                                                </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                                <AlertDialogHeader>
+                                                    <AlertDialogTitle>Czy na pewno chcesz odwołać tą wizytę?</AlertDialogTitle>
+                                                    <AlertDialogDescription>
+                                                        Po tej akcji nie będzie można zmienić statusu tej wizyty.
+                                                    </AlertDialogDescription>
+                                                </AlertDialogHeader>
+                                                <AlertDialogFooter>
+                                                    <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                                                    <AlertDialogAction
+                                                        onClick={() => cancelVisitMutation.mutate(visit.id)}
+                                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                                    >
+                                                        Potwierdź
+                                                    </AlertDialogAction>
+                                                </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
                                     </div>
                                 </CardContent>
                             </Card>

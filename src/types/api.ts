@@ -60,7 +60,7 @@ export interface VisitResponseDto {
     id: string;
     dateTimeStart: string;
     dateTimeEnd: string;
-    status: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
+    status: 'STARTED' | 'COMPLETED' | 'PLANNED' | 'CANCELED';
     comment?: string;
     totalCost?: number;
     createdAt: string;
@@ -74,7 +74,7 @@ export interface VisitPageRequestDto extends PageRequestDto {
     dateTimeEnd?: string;
     doctorId?: string;
     patientId?: string;
-    status?: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
+    status?: 'STARTED' | 'COMPLETED' | 'PLANNED' | 'CANCELED';
 }
 
 export interface VisitCreateDto {
@@ -85,6 +85,7 @@ export interface VisitCreateDto {
 }
 
 export interface VisitUpdateDto {
-    status?: 'SCHEDULED' | 'COMPLETED' | 'CANCELLED';
-    date?: string;
+    status?: 'STARTED' | 'COMPLETED' | 'PLANNED' | 'CANCELED';
+    dateTimeStart?: string;
+    dateTimeEnd?: string;
 }
