@@ -1,9 +1,23 @@
+export interface PageRequestDto {
+    page?: number;
+    size?: number;
+    filter?: string;
+    sortBy?: string;
+    sortDirection?: 'ASC' | 'DESC';
+}
+
+export interface UserPageRequestDto extends PageRequestDto {
+    specificIds?: string[];
+    role?: 'USER' | 'ADMIN';
+}
+
 export interface PageResponseDto<T> {
     content: T[];
-    totalPages: number;
-    totalElements: number;
+    page: number;
     size: number;
-    number: number;
+    totalElements: number;
+    totalPages: number;
+    last: boolean;
 }
 
 export interface UserResponseDto {
