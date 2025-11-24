@@ -40,7 +40,7 @@ export function CompleteProfileDialog({ open }: CompleteProfileDialogProps) {
         gender: "",
         street: "",
         houseNumber: "",
-        apartmentNumber: "",
+        flatNumber: "",
         city: "",
         postalCode: "",
     });
@@ -274,11 +274,11 @@ export function CompleteProfileDialog({ open }: CompleteProfileDialogProps) {
                                     {errors.houseNumber && <p className="text-red-500 text-sm">{errors.houseNumber}</p>}
                                 </div>
                                 <div className="col-span-1 space-y-2">
-                                    <Label htmlFor="apartmentNumber">Numer mieszkania</Label>
+                                    <Label htmlFor="flatNumber">Numer mieszkania</Label>
                                     <Input
-                                        id="apartmentNumber"
-                                        value={formData.apartmentNumber}
-                                        onChange={(e) => updateField("apartmentNumber", e.target.value)}
+                                        id="flatNumber"
+                                        value={formData.flatNumber}
+                                        onChange={(e) => updateField("flatNumber", e.target.value)}
                                     />
                                 </div>
                             </div>

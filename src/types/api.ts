@@ -60,7 +60,7 @@ export interface PatientCreateDto {
     gender?: string;
     street?: string;
     houseNumber?: string;
-    apartmentNumber?: string;
+    flatNumber?: string;
     city?: string;
     postalCode?: string;
 }
