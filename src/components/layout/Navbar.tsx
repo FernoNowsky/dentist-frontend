@@ -42,7 +42,6 @@ export function Navbar() {
                     });
                 }}
                 className="w-full md:w-auto"
-                variant="outline"
             >
                 Wyloguj się
             </Button>

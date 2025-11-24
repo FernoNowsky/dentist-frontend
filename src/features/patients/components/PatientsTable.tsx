@@ -60,7 +60,6 @@ export function PatientsTable({ data, isLoading }: PatientsTableProps) {
                                 <TableCell>{patient.phone || "-"}</TableCell>
                                 <TableCell className="text-right space-x-2">
                                     <Button
-                                        variant="outline"
                                         size="sm"
                                         onClick={() => navigate({ to: `/patients/${patient.id}` })}
                                     >
@@ -68,7 +67,6 @@ export function PatientsTable({ data, isLoading }: PatientsTableProps) {
                                         Karta Pacjenta
                                     </Button>
                                     <Button
-                                        variant="outline"
                                         size="sm"
                                         onClick={() => handleCreateVisit(patient)}
                                     >
