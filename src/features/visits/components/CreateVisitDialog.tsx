@@ -106,7 +106,7 @@ export function CreateVisitDialog({
         <Dialog open={open} onOpenChange={setOpen}>
             {!isControlled && (
                 <DialogTrigger asChild>
-                    <Button className="bg-black text-white hover:bg-gray-800">
+                    <Button>
                         <Plus className="mr-2 h-4 w-4" /> Utwórz wizytę
                     </Button>
                 </DialogTrigger>

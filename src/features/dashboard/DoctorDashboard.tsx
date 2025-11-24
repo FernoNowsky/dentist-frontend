@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -65,6 +66,10 @@ export function DoctorDashboard() {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["visits"] });
+            toast.success("Wizyta została odwołana.");
+        },
+        onError: () => {
+            toast.error("Wystąpił błąd podczas odwoływania wizyty.");
         },
     });
 
@@ -73,7 +78,7 @@ export function DoctorDashboard() {
     return (
         <div className="flex flex-col lg:flex-row gap-8 h-auto lg:h-[calc(100vh-80px)] overflow-hidden pt-8">
             <div className="flex-1 flex flex-col h-full min-h-[500px]">
-                <h2 className="text-2xl font-bold mb-2">
+                <h2 className="text-2xl font-bold text-primary">
                     Zaplanowane wizyty, {date ? format(date, "d MMMM yyyy", { locale: pl }) : "Wybierz datę"}
                 </h2>
                 <p className="text-muted-foreground mb-6">

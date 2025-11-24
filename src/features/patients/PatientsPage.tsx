@@ -32,7 +32,7 @@ export function PatientsPage() {
             <main className="container mx-auto px-4 py-8">
                 <div className="flex justify-between items-center mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold">Pacjenci</h1>
+                        <h1 className="text-2xl font-bold text-primary">Pacjenci</h1>
                         <p className="text-muted-foreground">
                             Tutaj możesz wyszukać danego pacjenta
                         </p>

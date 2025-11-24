@@ -17,10 +17,10 @@ export function PatientDashboard({ user }: PatientDashboardProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-4xl">
                 <Card className="h-64 flex flex-col justify-between">
                     <CardHeader>
-                        <CardTitle className="text-center text-xl">Twoja karta pacjenta</CardTitle>
+                        <CardTitle className="text-center text-xl text-primary">Twoja karta pacjenta</CardTitle>
                     </CardHeader>
                     <CardContent className="flex justify-center pb-8">
-                        <Button className="bg-black text-white hover:bg-gray-800" asChild>
+                        <Button asChild>
                             <Link to="/patients/$id" params={{ id: user.id }}>Przejdź do karty pacjenta</Link>
                         </Button>
                     </CardContent>
@@ -28,10 +28,10 @@ export function PatientDashboard({ user }: PatientDashboardProps) {
 
                 <Card className="h-64 flex flex-col justify-between">
                     <CardHeader>
-                        <CardTitle className="text-center text-xl">Twoje wizyty</CardTitle>
+                        <CardTitle className="text-center text-xl text-primary">Twoje wizyty</CardTitle>
                     </CardHeader>
                     <CardContent className="flex justify-center pb-8">
-                        <Button className="bg-black text-white hover:bg-gray-800" asChild>
+                        <Button asChild>
                             {/* TODO: Pass state/query to open visits tab */}
                             <Link to="/patients/$id" params={{ id: user.id }}>Przejdź do wizyt</Link>
                         </Button>
@@ -40,10 +40,10 @@ export function PatientDashboard({ user }: PatientDashboardProps) {
 
                 <Card className="h-64 flex flex-col justify-between">
                     <CardHeader>
-                        <CardTitle className="text-center text-xl">Twoje dokumenty</CardTitle>
+                        <CardTitle className="text-center text-xl text-primary">Twoje dokumenty</CardTitle>
                     </CardHeader>
                     <CardContent className="flex justify-center pb-8">
-                        <Button className="bg-black text-white hover:bg-gray-800" asChild>
+                        <Button asChild>
                             {/* TODO: Pass state/query to open documents tab */}
                             <Link to="/patients/$id" params={{ id: user.id }}>Przejdź do dokumentów</Link>
                         </Button>
@@ -52,11 +52,10 @@ export function PatientDashboard({ user }: PatientDashboardProps) {
 
                 <Card className="h-64 flex flex-col justify-between">
                     <CardHeader>
-                        <CardTitle className="text-center text-xl">Ustawienia</CardTitle>
+                        <CardTitle className="text-center text-xl text-primary">Ustawienia</CardTitle>
                     </CardHeader>
                     <CardContent className="flex justify-center pb-8">
                         <Button
-                            className="bg-black text-white hover:bg-gray-800"
                             onClick={() => setIsChangePasswordOpen(true)}
                         >
                             Przejdź do ustawień
