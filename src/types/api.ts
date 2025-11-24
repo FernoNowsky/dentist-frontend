@@ -23,12 +23,21 @@ export interface PageResponseDto<T> {
 export interface UserResponseDto {
     id: string;
     keycloakId: string;
+    username: string;
     firstName: string;
     lastName: string;
     email: string;
+    phone: string;
+    pesel: string;
     role: 'USER' | 'ADMIN';
-    pesel?: string;
-    phoneNumber?: string;
+    birthday: string;
+    city: string;
+    street: string;
+    houseNumber: string;
+    flatNumber: string | null;
+    postalCode: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface DentistCreateDto {

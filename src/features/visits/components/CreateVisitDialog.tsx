@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
     Dialog,
     DialogContent,
@@ -60,6 +61,10 @@ export function CreateVisitDialog({
             setOpen(false);
             setDate("");
             setTime("");
+            toast.success("Wizyta została utworzona pomyślnie!");
+        },
+        onError: () => {
+            toast.error("Wystąpił błąd podczas tworzenia wizyty.");
         },
     });
 

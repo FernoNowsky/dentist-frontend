@@ -1,4 +1,4 @@
-import { createRouter, RouterProvider, createRootRoute, createRoute, Outlet } from '@tanstack/react-router';
+import { createRouter, createRootRoute, createRoute, Outlet } from '@tanstack/react-router';
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools';
 import { AuthProvider } from './features/auth/AuthProvider';
 import { LandingPage } from './routes/LandingPage';
@@ -7,10 +7,13 @@ import { PatientsPage } from './features/patients/PatientsPage';
 import { PatientDetailsPage } from './features/patients/PatientDetailsPage';
 import { AboutPage } from './routes/AboutPage';
 
+import { Toaster } from 'sonner';
+
 const rootRoute = createRootRoute({
     component: () => (
         <AuthProvider>
             <Outlet />
+            <Toaster />
             <TanStackRouterDevtools />
         </AuthProvider>
     ),

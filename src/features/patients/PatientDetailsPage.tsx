@@ -70,7 +70,7 @@ export function PatientDetailsPage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Data urodzenia</Label>
-                                    <Input value="-" readOnly />
+                                    <Input value={patient.birthday || "-"} readOnly />
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Płeć</Label>
@@ -82,32 +82,32 @@ export function PatientDetailsPage() {
                                 <h3 className="font-semibold text-lg">Dane kontaktowe</h3>
                                 <div className="space-y-2">
                                     <Label>Telefon</Label>
-                                    <Input value={patient.phoneNumber || ""} readOnly />
+                                    <Input value={patient.phone || ""} readOnly />
                                 </div>
 
                                 <h3 className="font-semibold text-lg mt-8">Adres zamieszkania</h3>
                                 <div className="grid grid-cols-3 gap-4">
                                     <div className="col-span-1 space-y-2">
                                         <Label>Ulica</Label>
-                                        <Input value="-" readOnly />
+                                        <Input value={patient.street || "-"} readOnly />
                                     </div>
                                     <div className="col-span-1 space-y-2">
                                         <Label>Numer domu</Label>
-                                        <Input value="-" readOnly />
+                                        <Input value={patient.houseNumber || "-"} readOnly />
                                     </div>
                                     <div className="col-span-1 space-y-2">
                                         <Label>Numer mieszkania</Label>
-                                        <Input value="-" readOnly />
+                                        <Input value={patient.flatNumber || "-"} readOnly />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="col-span-1 space-y-2">
                                         <Label>Miejscowość</Label>
-                                        <Input value="-" readOnly />
+                                        <Input value={patient.city || "-"} readOnly />
                                     </div>
                                     <div className="col-span-1 space-y-2">
                                         <Label>Kod pocztowy</Label>
-                                        <Input value="-" readOnly />
+                                        <Input value={patient.postalCode || "-"} readOnly />
                                     </div>
                                 </div>
                             </div>

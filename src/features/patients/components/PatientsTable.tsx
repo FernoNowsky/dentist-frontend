@@ -57,7 +57,7 @@ export function PatientsTable({ data, isLoading }: PatientsTableProps) {
                                 <TableCell>{patient.firstName}</TableCell>
                                 <TableCell>{patient.lastName}</TableCell>
                                 <TableCell>{patient.pesel || "-"}</TableCell>
-                                <TableCell>{patient.phoneNumber || "-"}</TableCell>
+                                <TableCell>{patient.phone || "-"}</TableCell>
                                 <TableCell className="text-right space-x-2">
                                     <Button
                                         variant="outline"

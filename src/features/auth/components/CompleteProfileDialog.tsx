@@ -2,7 +2,9 @@ import { useState } from "react";
 import { useAuth } from "react-oidc-context";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api";
+import { getBirthDateFromPesel, getGenderFromPesel } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 import {
     Dialog,
     DialogContent,
@@ -51,6 +53,10 @@ export function CompleteProfileDialog({ open }: CompleteProfileDialogProps) {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["user"] });
+            toast.success("Profil został uzupełniony pomyślnie!");
+        },
+        onError: () => {
+            toast.error("Wystąpił błąd podczas zapisywania profilu.");
         },
     });
 
@@ -205,40 +211,27 @@ export function CompleteProfileDialog({ open }: CompleteProfileDialogProps) {
                                 <Input
                                     id="pesel"
                                     value={formData.pesel}
-                                    onChange={(e) => updateField("pesel", e.target.value)}
+                                    onChange={(e) => {
+                                        const newPesel = e.target.value;
+                                        const birthDate = getBirthDateFromPesel(newPesel);
+                                        const gender = getGenderFromPesel(newPesel);
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            pesel: newPesel,
+                                            birthday: birthDate || "",
+                                            gender: gender || prev.gender
+                                        }));
+                                        if (errors.pesel) setErrors({ ...errors, pesel: "" });
+                                    }}
                                     maxLength={11}
                                     required
                                 />
                                 {errors.pesel && <p className="text-red-500 text-sm">{errors.pesel}</p>}
                             </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="birthday">Data urodzenia *</Label>
-                                <Input
-                                    id="birthday"
-                                    type="date"
-                                    value={formData.birthday}
-                                    onChange={(e) => updateField("birthday", e.target.value)}
-                                    required
-                                />
-                                {errors.birthday && <p className="text-red-500 text-sm">{errors.birthday}</p>}
-                            </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="gender">Płeć *</Label>
-                                <select
-                                    id="gender"
-                                    value={formData.gender}
-                                    onChange={(e) => updateField("gender", e.target.value)}
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                                    required
-                                >
-                                    <option value="">Wybierz płeć</option>
-                                    <option value="Mężczyzna">Mężczyzna</option>
-                                    <option value="Kobieta">Kobieta</option>
-                                </select>
-                                {errors.gender && <p className="text-red-500 text-sm">{errors.gender}</p>}
-                            </div>
+
+
                         </div>
 
                         <div className="space-y-4">
