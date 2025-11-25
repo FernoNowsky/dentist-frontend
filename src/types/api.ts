@@ -65,6 +65,44 @@ export interface PatientCreateDto {
     postalCode?: string;
 }
 
+export interface DiagnoseDictionaryResponseDto {
+    id: number;
+    name: string;
+}
+
+export interface ProcedureDictionaryResponseDto {
+    id: number;
+    name: string;
+    price: number;
+    isActive: boolean;
+}
+
+export interface ToothProcedureResponseDto {
+    id: string;
+    tooth: string;
+    location: string;
+    cost: number;
+    comment: string;
+    createdAt: string;
+    procedureDictionary: ProcedureDictionaryResponseDto;
+}
+
+export interface ToothDiagnoseResponseDto {
+    tooth: string;
+    location: string;
+    comment: string;
+    createdAt: string;
+    diagnoseDictionary: DiagnoseDictionaryResponseDto;
+}
+
+export interface DocumentResponseDto {
+    id: string;
+    title: string;
+    description: string;
+    visitId: string;
+    createdAt: string;
+}
+
 export interface VisitResponseDto {
     id: string;
     dateTimeStart: string;
@@ -76,6 +114,9 @@ export interface VisitResponseDto {
     updatedAt: string;
     patient: UserResponseDto;
     doctor: UserResponseDto;
+    procedures: ToothProcedureResponseDto[];
+    diagnoses: ToothDiagnoseResponseDto[];
+    documents: DocumentResponseDto[];
 }
 
 export interface VisitPageRequestDto extends PageRequestDto {
@@ -93,8 +134,26 @@ export interface VisitCreateDto {
     dateTimeEnd: string;
 }
 
+export interface ToothProcedureCreateDto {
+    tooth: string;
+    location: string;
+    comment: string;
+    cost: number;
+    procedureDictionaryId: number;
+}
+
+export interface ToothDiagnoseCreateDto {
+    tooth: string;
+    location: string;
+    comment: string;
+    diagnoseDictionaryId: number;
+}
+
 export interface VisitUpdateDto {
     status?: 'STARTED' | 'COMPLETED' | 'PLANNED' | 'CANCELED';
     dateTimeStart?: string;
     dateTimeEnd?: string;
+    comment?: string;
+    toothProcedures?: ToothProcedureCreateDto[];
+    toothDiagnoses?: ToothDiagnoseCreateDto[];
 }

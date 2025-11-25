@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -101,7 +102,9 @@ export function DoctorDashboard() {
                                         <p className="text-muted-foreground text-sm">PESEL: {visit.patient.pesel || "Brak"}</p>
                                     </div>
                                     <div className="flex gap-2 flex-col sm:flex-row mt-4 justify-between">
-                                        <Button>Przeprowadź wizytę</Button>
+                                        <Link to="/visits/$visitId/execution" params={{ visitId: visit.id }}>
+                                            <Button>Przeprowadź wizytę</Button>
+                                        </Link>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button variant="outline" className="text-destructive border-destructive hover:text-destructive hover:bg-destructive/10">
