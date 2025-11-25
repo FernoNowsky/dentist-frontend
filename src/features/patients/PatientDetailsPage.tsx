@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/layout/Navbar";
 import { CreateVisitDialog } from "@/features/visits/components/CreateVisitDialog";
 import { ScheduledVisits } from "@/features/patients/components/ScheduledVisits";
+import { VisitHistory } from "@/features/patients/components/VisitHistory";
 
 export function PatientDetailsPage() {
     const { id } = useParams({ from: "/patients/$id" });
@@ -121,8 +122,8 @@ export function PatientDetailsPage() {
                     <TabsContent value="documents">
                         <div className="py-4">Dokumenty - placeholder</div>
                     </TabsContent>
-                    <TabsContent value="history">
-                        <div className="py-4">Historia wizyt - placeholder</div>
+                    <TabsContent value="history" className="mt-6">
+                        <VisitHistory patientId={patient.id} />
                     </TabsContent>
                 </Tabs>
             </main>

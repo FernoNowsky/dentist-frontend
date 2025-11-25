@@ -13,11 +13,11 @@ import { Loader2, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DateRange } from "react-day-picker";
 
-interface ScheduledVisitsProps {
+interface VisitHistoryProps {
     patientId: string;
 }
 
-export function ScheduledVisits({ patientId }: ScheduledVisitsProps) {
+export function VisitHistory({ patientId }: VisitHistoryProps) {
     const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
     const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
 
@@ -31,13 +31,12 @@ export function ScheduledVisits({ patientId }: ScheduledVisitsProps) {
     });
 
     const { data: visitsResponse, isLoading } = useQuery({
-        queryKey: ["patient-visits", patientId, selectedDoctorId, dateRange],
+        queryKey: ["patient-visit-history", patientId, selectedDoctorId, dateRange],
         queryFn: async () => {
             const now = new Date();
             const params: VisitPageRequestDto = {
-                dateTimeStart: now.toISOString(),
+                dateTimeEnd: now.toISOString(),
                 patientId: patientId,
-                status: "PLANNED",
                 size: 100,
             };
 
@@ -68,14 +67,37 @@ export function ScheduledVisits({ patientId }: ScheduledVisitsProps) {
     const visits = visitsResponse?.content || [];
     const doctors = doctorsResponse?.content || [];
 
+    const getStatusLabel = (status: string) => {
+        switch (status) {
+            case "COMPLETED":
+                return "Zakończona";
+            case "CANCELED":
+                return "Odwołana";
+            case "STARTED":
+                return "W trakcie";
+            default:
+                return status;
+        }
+    };
+
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "COMPLETED":
+                return "text-green-600";
+            case "CANCELED":
+                return "text-destructive";
+            case "STARTED":
+                return "text-blue-600";
+            default:
+                return "text-muted-foreground";
+        }
+    };
+
     const formatDateRange = () => {
         if (!dateRange?.from) return "Wybierz datę";
         if (!dateRange.to) return format(dateRange.from, "PPP", { locale: pl });
         return `${format(dateRange.from, "PPP", { locale: pl })} - ${format(dateRange.to, "PPP", { locale: pl })}`;
     };
-
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
 
     return (
         <div className="space-y-6">
@@ -120,7 +142,7 @@ export function ScheduledVisits({ patientId }: ScheduledVisitsProps) {
                                 locale={pl}
                                 initialFocus
                                 numberOfMonths={2}
-                                disabled={{ before: today }}
+                                disabled={{ after: new Date() }}
                             />
                             {dateRange?.from && (
                                 <div className="p-3 border-t">
@@ -146,7 +168,7 @@ export function ScheduledVisits({ patientId }: ScheduledVisitsProps) {
 
             {!isLoading && visits.length === 0 && (
                 <div className="flex flex-col items-center justify-center py-12 space-y-4">
-                    <p className="text-muted-foreground">Brak umówionych wizyt</p>
+                    <p className="text-muted-foreground">Brak wizyt w historii</p>
                 </div>
             )}
 
@@ -166,11 +188,16 @@ export function ScheduledVisits({ patientId }: ScheduledVisitsProps) {
                                         <p className="text-sm text-muted-foreground">
                                             Czas trwania: {format(new Date(visit.dateTimeStart), "HH:mm")} - {format(new Date(visit.dateTimeEnd), "HH:mm")}
                                         </p>
+                                        <p className={`text-sm font-semibold mt-2 ${getStatusColor(visit.status)}`}>
+                                            Status: {getStatusLabel(visit.status)}
+                                        </p>
                                     </div>
 
-                                    <Button variant="outline" className="text-destructive border-destructive hover:text-destructive hover:bg-destructive/10">
-                                        Odwołaj wizytę
-                                    </Button>
+                                    {visit.status === "COMPLETED" && (
+                                        <Button>
+                                            Szczegóły wizyty
+                                        </Button>
+                                    )}
                                 </div>
                             </CardContent>
                         </Card>
