@@ -10,8 +10,18 @@ import type {
     DocumentResponseDto,
     VisitUpdateDto,
     ToothDiagnoseCreateDto,
-    ToothProcedureCreateDto
+    ToothProcedureCreateDto,
+    TeethDiagnosesResponseDto
 } from '@/types/api';
+
+const ALL_TEETH = [
+    "18", "17", "16", "15", "14", "13", "12", "11",
+    "21", "22", "23", "24", "25", "26", "27", "28",
+    "48", "47", "46", "45", "44", "43", "42", "41",
+    "31", "32", "33", "34", "35", "36", "37", "38"
+];
+
+const LOCATIONS = ['top', 'bottom', 'left', 'right', 'center'];
 
 export const useVisitExecution = (visitId: string) => {
     const queryClient = useQueryClient();
@@ -31,6 +41,23 @@ export const useVisitExecution = (visitId: string) => {
     const proceduresQuery = useQuery({
         queryKey: ['procedures-dictionary'],
         queryFn: () => apiRequest<ProcedureDictionaryResponseDto[]>('/procedure-dictionary/all'),
+    });
+
+    // Fetch historical teeth diagnoses
+    const teethDiagnosesQuery = useQuery({
+        queryKey: ['teeth-diagnoses', visitId, visitQuery.data?.patient?.id],
+        queryFn: async () => {
+            if (!visitQuery.data?.patient?.id) return null;
+
+            const toothParams = ALL_TEETH.map(t => `toothMap=${t}`).join('&');
+            const locationParams = LOCATIONS.map(l => `locationMap=${l}`).join('&');
+            const url = `/teeth-diagnoses/patients/${visitQuery.data.patient.id}?${toothParams}&${locationParams}&dueToVisitId=${visitId}`;
+
+            return apiRequest<TeethDiagnosesResponseDto>(url, {
+                method: 'get'
+            });
+        },
+        enabled: !!visitQuery.data?.patient?.id,
     });
 
     const updateVisitMutation = useMutation({
@@ -298,9 +325,10 @@ export const useVisitExecution = (visitId: string) => {
 
     return {
         visit: currentVisit,
-        isLoading: visitQuery.isLoading || diagnosesQuery.isLoading || proceduresQuery.isLoading,
+        isLoading: visitQuery.isLoading || diagnosesQuery.isLoading || proceduresQuery.isLoading || teethDiagnosesQuery.isLoading,
         diagnosesDictionary: diagnosesQuery.data || [],
         proceduresDictionary: proceduresQuery.data || [],
+        teethDiagnoses: teethDiagnosesQuery.data?.currentDiagnsoses || [],
         handleAddDiagnose,
         handleAddProcedure,
         handleRemoveProcedure,

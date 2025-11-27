@@ -7,6 +7,7 @@ import { PatientsPage } from './features/patients/PatientsPage';
 import { PatientDetailsPage } from './features/patients/PatientDetailsPage';
 import { AboutPage } from './routes/AboutPage';
 import { VisitExecutionPage } from './features/visits/VisitExecutionPage';
+import { VisitDetailsPage } from './features/visits/VisitDetailsPage';
 import { Navbar } from './components/layout/Navbar';
 
 import { Toaster } from 'sonner';
@@ -64,7 +65,28 @@ const visitExecutionRoute = createRoute({
     ),
 });
 
-const routeTree = rootRoute.addChildren([indexRoute, aboutRoute, dashboardRoute, patientsRoute, patientDetailsRoute, visitExecutionRoute]);
+const visitDetailsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/visits/$visitId/details',
+    component: () => (
+        <div className="min-h-screen bg-background">
+            <Navbar />
+            <main className="container mx-auto px-4">
+                <VisitDetailsPage />
+            </main>
+        </div>
+    ),
+});
+
+const routeTree = rootRoute.addChildren([
+    indexRoute,
+    aboutRoute,
+    dashboardRoute,
+    patientsRoute,
+    patientDetailsRoute,
+    visitExecutionRoute,
+    visitDetailsRoute
+]);
 
 export const router = createRouter({ routeTree });
 

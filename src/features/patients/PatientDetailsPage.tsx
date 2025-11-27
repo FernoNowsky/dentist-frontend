@@ -49,10 +49,10 @@ export function PatientDetailsPage() {
 
                 <Tabs defaultValue="personal" className="w-full">
                     <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
-                        <TabsTrigger value="personal" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2">Dane osobowe</TabsTrigger>
-                        <TabsTrigger value="scheduled" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2">Umówione wizyty</TabsTrigger>
-                        <TabsTrigger value="documents" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2">Dokumenty</TabsTrigger>
-                        <TabsTrigger value="history" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2">Historia wizyt</TabsTrigger>
+                        <TabsTrigger value="personal" className="data-[state=active]:text-primary rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2">Dane osobowe</TabsTrigger>
+                        <TabsTrigger value="scheduled" className="data-[state=active]:text-primary rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2">Umówione wizyty</TabsTrigger>
+                        <TabsTrigger value="documents" className="data-[state=active]:text-primary rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2">Dokumenty</TabsTrigger>
+                        <TabsTrigger value="history" className="data-[state=active]:text-primary rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2">Historia wizyt</TabsTrigger>
                     </TabsList>
 
                     <TabsContent value="personal" className="mt-6">

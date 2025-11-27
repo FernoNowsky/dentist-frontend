@@ -16,6 +16,7 @@ export function VisitExecutionPage() {
         isLoading,
         diagnosesDictionary,
         proceduresDictionary,
+        teethDiagnoses,
         handleAddDiagnose,
         handleAddProcedure,
         handleRemoveProcedure,
@@ -55,6 +56,16 @@ export function VisitExecutionPage() {
     };
 
     const odontogramDiagnoses: Record<string, string> = {};
+
+    teethDiagnoses.forEach(d => {
+        if (d.found && d.diagnoseDictionary?.name) {
+            const color = stringToColor(d.diagnoseDictionary.name);
+            const location = d.location.toLowerCase();
+            const tooth = d.tooth.toString();
+            odontogramDiagnoses[`${tooth}-${location}`] = color;
+        }
+    });
+
     visit.diagnoses.forEach(d => {
         const color = stringToColor(d.diagnoseDictionary.name);
         odontogramDiagnoses[`${d.tooth}-${d.location}`] = color;

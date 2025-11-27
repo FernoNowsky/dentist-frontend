@@ -93,6 +93,7 @@ export interface ToothDiagnoseResponseDto {
     comment: string;
     createdAt: string;
     diagnoseDictionary: DiagnoseDictionaryResponseDto;
+    found?: boolean;
 }
 
 export interface DocumentResponseDto {
@@ -156,4 +157,8 @@ export interface VisitUpdateDto {
     comment?: string;
     toothProcedures?: ToothProcedureCreateDto[];
     toothDiagnoses?: ToothDiagnoseCreateDto[];
+}
+
+export interface TeethDiagnosesResponseDto {
+    currentDiagnsoses: ToothDiagnoseResponseDto[];
 }

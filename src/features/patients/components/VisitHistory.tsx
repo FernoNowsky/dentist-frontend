@@ -12,6 +12,7 @@ import { pl } from "date-fns/locale";
 import { Loader2, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { DateRange } from "react-day-picker";
+import { Link } from "@tanstack/react-router";
 
 interface VisitHistoryProps {
     patientId: string;
@@ -35,6 +36,7 @@ export function VisitHistory({ patientId }: VisitHistoryProps) {
         queryFn: async () => {
             const now = new Date();
             const params: VisitPageRequestDto = {
+                status: "COMPLETED",
                 dateTimeEnd: now.toISOString(),
                 patientId: patientId,
                 size: 100,
@@ -194,8 +196,10 @@ export function VisitHistory({ patientId }: VisitHistoryProps) {
                                     </div>
 
                                     {visit.status === "COMPLETED" && (
-                                        <Button>
-                                            Szczegóły wizyty
+                                        <Button asChild>
+                                            <Link to="/visits/$visitId/details" params={{ visitId: visit.id }}>
+                                                Szczegóły wizyty
+                                            </Link>
                                         </Button>
                                     )}
                                 </div>
