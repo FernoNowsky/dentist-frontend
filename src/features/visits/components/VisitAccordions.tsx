@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -62,6 +62,7 @@ export const VisitAccordions = ({
     const [file, setFile] = useState<File | null>(null);
     const [docTitle, setDocTitle] = useState('');
     const [docDesc, setDocDesc] = useState('');
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const toggleSection = (section: string) => {
         setOpenSection(openSection === section ? null : section);
@@ -73,6 +74,9 @@ export const VisitAccordions = ({
             setFile(null);
             setDocTitle('');
             setDocDesc('');
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
         }
     };
 
@@ -204,6 +208,7 @@ export const VisitAccordions = ({
                                 <label className="text-sm font-medium">Plik</label>
                                 <Input
                                     type="file"
+                                    ref={fileInputRef}
                                     onChange={(e) => setFile(e.target.files?.[0] || null)}
                                 />
                             </div>
