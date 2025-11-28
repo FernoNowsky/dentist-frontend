@@ -28,7 +28,7 @@ export function Navbar() {
                         <Link to="/dashboard" onClick={() => setIsOpen(false)}>Kalendarz</Link>
                     </Button>
                     <Button variant="ghost" asChild className="w-full justify-start md:w-auto">
-                        <Link to="/dashboard" onClick={() => setIsOpen(false)}>Wizyty</Link>
+                        <Link to="/visits" onClick={() => setIsOpen(false)}>Wizyty</Link>
                     </Button>
                     <Button variant="ghost" asChild className="w-full justify-start md:w-auto">
                         <Link to="/patients" onClick={() => setIsOpen(false)}>Pacjenci</Link>

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -22,6 +21,8 @@ import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { useUserCheck } from "@/features/auth/hooks/useUserCheck";
 import { useCancelVisit } from "@/features/visits/hooks/useCancelVisit";
+import { useStartVisit } from "@/features/visits/hooks/useStartVisit";
+import { Stethoscope } from "lucide-react";
 
 export function DoctorDashboard() {
     const [date, setDate] = useState<Date | undefined>(new Date());
@@ -57,6 +58,7 @@ export function DoctorDashboard() {
     });
 
     const cancelVisitMutation = useCancelVisit();
+    const startVisitMutation = useStartVisit();
 
     const visits = visitsResponse?.content || [];
 
@@ -86,9 +88,10 @@ export function DoctorDashboard() {
                                         <p className="text-muted-foreground text-sm">PESEL: {visit.patient.pesel || "Brak"}</p>
                                     </div>
                                     <div className="flex gap-2 flex-col sm:flex-row mt-4 justify-between">
-                                        <Link to="/visits/$visitId/execution" params={{ visitId: visit.id }}>
-                                            <Button>Przeprowadź wizytę</Button>
-                                        </Link>
+                                        <Button onClick={() => startVisitMutation.mutate(visit.id)}>
+                                            <Stethoscope className="mr-2 h-4 w-4" />
+                                            Przeprowadź wizytę
+                                        </Button>
                                         <AlertDialog>
                                             <AlertDialogTrigger asChild>
                                                 <Button variant="outline" className="text-destructive border-destructive hover:text-destructive hover:bg-destructive/10">
