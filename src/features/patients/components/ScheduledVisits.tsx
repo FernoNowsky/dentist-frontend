@@ -11,6 +11,18 @@ import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Loader2, CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useCancelVisit } from "@/features/visits/hooks/useCancelVisit";
 import type { DateRange } from "react-day-picker";
 
 interface ScheduledVisitsProps {
@@ -20,6 +32,7 @@ interface ScheduledVisitsProps {
 export function ScheduledVisits({ patientId }: ScheduledVisitsProps) {
     const [selectedDoctorId, setSelectedDoctorId] = useState<string>("");
     const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+    const cancelVisitMutation = useCancelVisit();
 
     const { data: doctorsResponse } = useQuery({
         queryKey: ["doctors"],
@@ -168,9 +181,30 @@ export function ScheduledVisits({ patientId }: ScheduledVisitsProps) {
                                         </p>
                                     </div>
 
-                                    <Button variant="outline" className="text-destructive border-destructive hover:text-destructive hover:bg-destructive/10">
-                                        Odwołaj wizytę
-                                    </Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="outline" className="text-destructive border-destructive hover:text-destructive hover:bg-destructive/10">
+                                                Odwołaj wizytę
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Czy na pewno chcesz odwołać tą wizytę?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    Po tej akcji nie będzie można zmienić statusu tej wizyty.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Anuluj</AlertDialogCancel>
+                                                <AlertDialogAction
+                                                    onClick={() => cancelVisitMutation.mutate(visit.id)}
+                                                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                                >
+                                                    Potwierdź
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
                                 </div>
                             </CardContent>
                         </Card>

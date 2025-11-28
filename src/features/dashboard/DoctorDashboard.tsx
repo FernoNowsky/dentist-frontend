@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { toast } from "sonner";
+
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,16 +16,17 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { apiRequest } from "@/lib/api";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { VisitResponseDto, PageResponseDto, VisitPageRequestDto, VisitUpdateDto } from "@/types/api";
+import { useQuery } from "@tanstack/react-query";
+import type { VisitResponseDto, PageResponseDto, VisitPageRequestDto } from "@/types/api";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { useUserCheck } from "@/features/auth/hooks/useUserCheck";
+import { useCancelVisit } from "@/features/visits/hooks/useCancelVisit";
 
 export function DoctorDashboard() {
     const [date, setDate] = useState<Date | undefined>(new Date());
     const { data: currentUser } = useUserCheck();
-    const queryClient = useQueryClient();
+
 
     const { data: visitsResponse, isLoading } = useQuery({
         queryKey: ["visits", date, currentUser?.id],
@@ -55,24 +56,7 @@ export function DoctorDashboard() {
         enabled: !!date && !!currentUser?.id,
     });
 
-    const cancelVisitMutation = useMutation({
-        mutationFn: async (visitId: string) => {
-            const updateData: VisitUpdateDto = {
-                status: "CANCELED",
-            };
-            return apiRequest(`/visits/${visitId}`, {
-                method: "put",
-                data: updateData,
-            });
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["visits"] });
-            toast.success("Wizyta została odwołana.");
-        },
-        onError: () => {
-            toast.error("Wystąpił błąd podczas odwoływania wizyty.");
-        },
-    });
+    const cancelVisitMutation = useCancelVisit();
 
     const visits = visitsResponse?.content || [];
 
