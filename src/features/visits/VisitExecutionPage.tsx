@@ -3,6 +3,7 @@ import { useVisitExecution } from "./api/useVisitExecution";
 import { Odontogram } from "./components/Odontogram";
 import { VisitAccordions } from "./components/VisitAccordions";
 import { DiagnoseForm } from "./components/DiagnoseForm";
+import { ToothHistory } from "./components/ToothHistory";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
@@ -29,6 +30,7 @@ export function VisitExecutionPage() {
 
     const [selectedToothParts, setSelectedToothParts] = useState<string[]>([]);
     const [historyMode, setHistoryMode] = useState(false);
+    const [selectedTooth, setSelectedTooth] = useState<{ tooth: string; location: string } | null>(null);
 
     if (isLoading || !visit) {
         return <div className="p-8">Ładowanie wizyty...</div>;
@@ -38,11 +40,7 @@ export function VisitExecutionPage() {
         const key = `${toothId}-${part}`;
 
         if (historyMode) {
-            console.log('Tooth History:', {
-                toothId,
-                location: part,
-                key
-            });
+            setSelectedTooth({ tooth: toothId, location: part });
             return;
         }
 
@@ -120,13 +118,21 @@ export function VisitExecutionPage() {
                     </div>
                 </div>
                 <div className="lg:col-span-1">
-                    <DiagnoseForm
-                        diagnosesDictionary={diagnosesDictionary}
-                        proceduresDictionary={proceduresDictionary}
-                        selectedToothParts={selectedToothParts}
-                        onAddDiagnose={onAddDiagnoseWrapper}
-                        onAddProcedure={handleAddProcedure}
-                    />
+                    {historyMode && selectedTooth ? (
+                        <ToothHistory
+                            patientId={visit.patient.id}
+                            tooth={selectedTooth.tooth}
+                            location={selectedTooth.location}
+                        />
+                    ) : (
+                        <DiagnoseForm
+                            diagnosesDictionary={diagnosesDictionary}
+                            proceduresDictionary={proceduresDictionary}
+                            selectedToothParts={selectedToothParts}
+                            onAddDiagnose={onAddDiagnoseWrapper}
+                            onAddProcedure={handleAddProcedure}
+                        />
+                    )}
                 </div>
             </div>
 

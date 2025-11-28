@@ -162,3 +162,19 @@ export interface VisitUpdateDto {
 export interface TeethDiagnosesResponseDto {
     currentDiagnsoses: ToothDiagnoseResponseDto[];
 }
+
+export interface ToothHistoryPageRequestDto extends PageRequestDto {
+    patientId: string;
+    tooth: string;
+    location?: string;
+}
+
+export interface ToothHistoryItemResponseDto {
+    visitId: string;
+    visitStartDateTime: string;
+    isDiagnose: boolean;
+    isProcedure: boolean;
+    procedure?: ToothProcedureResponseDto;
+    diagnose?: ToothDiagnoseResponseDto;
+    createdAt: string;
+}

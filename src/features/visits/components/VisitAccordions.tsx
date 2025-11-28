@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
+import { History, FileEdit } from 'lucide-react';
 import {
     type DocumentResponseDto,
     type ToothProcedureResponseDto,
@@ -87,52 +88,62 @@ export const VisitAccordions = ({
                 isOpen={openSection === 'diagnoses'}
                 onClick={() => toggleSection('diagnoses')}
             >
-                <div className="space-y-4">
-                    <div className="flex justify-between text-xs text-muted-foreground px-2">
-                        <span>Oznaczenie zęba</span>
-                        <span>Rozpoznanie</span>
+                {visitDiagnoses.length === 0 && historicalDiagnoses.length === 0 ? (
+                    <p className="text-sm text-gray-500 text-center">Brak rozpoznań</p>
+                ) : (
+                    <div className={cn(
+                        "grid gap-4",
+                        historicalDiagnoses.length > 0 ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1"
+                    )}>
+                        {/* Historical Diagnoses - Left Side (only if present) */}
+                        {historicalDiagnoses.length > 0 && (
+                            <div className="space-y-2">
+                                <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground px-2 pb-2 border-b">
+                                    <History className="h-4 w-4" />
+                                    <span>Stan przed wizytą</span>
+                                </div>
+                                <div className="space-y-1">
+                                    {historicalDiagnoses.map((d, i) => (
+                                        <div key={`hist-${i}`} className="flex justify-between items-center p-3 bg-slate-50 rounded-md text-sm border border-slate-200">
+                                            <div className="font-medium">
+                                                {d.tooth} ({d.location})
+                                            </div>
+                                            <div className="text-right">
+                                                <div>{d.diagnoseDictionary.name}</div>
+                                                {d.comment && <div className="text-xs text-muted-foreground">{d.comment}</div>}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Visit Diagnoses - Right Side (or full width if no historical) */}
+                        <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-sm font-semibold text-primary px-2 pb-2 border-b border-primary/30">
+                                <FileEdit className="h-4 w-4" />
+                                <span>{historicalDiagnoses.length > 0 ? "Zmiany podczas wizyty" : "Rozpoznania"}</span>
+                            </div>
+                            {visitDiagnoses.length === 0 ? (
+                                <p className="text-sm text-muted-foreground text-center py-4">Brak zmian</p>
+                            ) : (
+                                <div className="space-y-1">
+                                    {visitDiagnoses.map((d, i) => (
+                                        <div key={i} className="flex justify-between items-center p-3 bg-primary/10 rounded-md text-sm border border-primary/30">
+                                            <div className="font-medium">
+                                                {d.tooth} ({d.location})
+                                            </div>
+                                            <div className="text-right">
+                                                <div>{d.diagnoseDictionary.name}</div>
+                                                {d.comment && <div className="text-xs text-muted-foreground">{d.comment}</div>}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     </div>
-
-                    {historicalDiagnoses.length > 0 && (
-                        <div className="space-y-2">
-                            <div className="text-xs font-semibold text-muted-foreground px-2">Stan przed wizytą:</div>
-                            <div className="space-y-1">
-                                {historicalDiagnoses.map((d, i) => (
-                                    <div key={`hist-${i}`} className="flex justify-between items-center p-3 bg-muted/20 rounded-md text-sm border border-muted">
-                                        <div className="font-medium ">
-                                            {d.tooth} ({d.location})
-                                        </div>
-                                        <div className="text-right">
-                                            <div>{d.diagnoseDictionary.name}</div>
-                                            {d.comment && <div className="text-xs text-muted-foreground">{d.comment}</div>}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-
-                    {visitDiagnoses.length === 0 && historicalDiagnoses.length === 0 ? (
-                        <p className="text-sm text-gray-500 text-center">Brak rozpoznań</p>
-                    ) : visitDiagnoses.length > 0 && (
-                        <div className="space-y-2">
-                            <div className="text-xs font-semibold text-muted-foreground px-2">Zmiany podczas wizyty:</div>
-                            <div className="space-y-1">
-                                {visitDiagnoses.map((d, i) => (
-                                    <div key={i} className="flex justify-between items-center p-3 bg-muted/30 rounded-md text-sm">
-                                        <div className="font-medium">
-                                            {d.tooth} ({d.location})
-                                        </div>
-                                        <div className="text-right">
-                                            <div>{d.diagnoseDictionary.name}</div>
-                                            {d.comment && <div className="text-xs text-muted-foreground">{d.comment}</div>}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
+                )}
             </AccordionItem>
 
             <AccordionItem
