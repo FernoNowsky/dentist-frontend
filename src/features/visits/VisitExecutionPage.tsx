@@ -9,6 +9,7 @@ import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { useState } from "react";
 import { History } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 export function VisitExecutionPage() {
     const { visitId } = useParams({ from: "/visits/$visitId/execution" });
@@ -33,7 +34,7 @@ export function VisitExecutionPage() {
     const [selectedTooth, setSelectedTooth] = useState<{ tooth: string; location: string } | null>(null);
 
     if (isLoading || !visit) {
-        return <div className="p-8">Ładowanie wizyty...</div>;
+        return <Spinner size="lg" className="min-h-screen" />;
     }
 
     const handleToothClick = (toothId: string, part: string) => {

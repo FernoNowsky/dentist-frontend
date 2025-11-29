@@ -11,6 +11,8 @@ import { apiRequest } from "@/lib/api";
 import { type DentistCreateDto } from "@/types/api";
 import { useEffect, useRef } from "react";
 
+import { Spinner } from "@/components/ui/spinner";
+
 export function Dashboard() {
     const auth = useAuth();
     const { data: user, isLoading, isError, error } = useUserCheck();
@@ -66,11 +68,11 @@ export function Dashboard() {
     }, [auth.isLoading, auth.isAuthenticated, auth]);
 
     if (auth.isLoading || !auth.isAuthenticated) {
-        return <div>Loading authentication...</div>;
+        return <Spinner size="lg" className="min-h-screen" />;
     }
 
     if (isLoading) {
-        return <div>Loading user data...</div>;
+        return <Spinner size="lg" className="min-h-screen" />;
     }
 
     // If user needs to complete profile

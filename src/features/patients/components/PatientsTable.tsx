@@ -12,6 +12,7 @@ import { FileText, Plus } from "lucide-react";
 import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { CreateVisitDialog } from "@/features/visits/components/CreateVisitDialog";
+import { Spinner } from "@/components/ui/spinner";
 
 interface PatientsTableProps {
     data: UserResponseDto[];
@@ -29,7 +30,7 @@ export function PatientsTable({ data, isLoading }: PatientsTableProps) {
     };
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <Spinner size="lg" className="py-12" />;
     }
 
     return (

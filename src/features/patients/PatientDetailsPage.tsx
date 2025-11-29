@@ -10,23 +10,42 @@ import { Navbar } from "@/components/layout/Navbar";
 import { CreateVisitDialog } from "@/features/visits/components/CreateVisitDialog";
 import { ScheduledVisits } from "@/features/patients/components/ScheduledVisits";
 import { VisitHistory } from "@/features/patients/components/VisitHistory";
+import { Spinner } from "@/components/ui/spinner";
+import { ForbiddenPage } from "@/routes/ForbiddenPage";
+import { PatientNotFound } from "@/features/patients/components/PatientNotFound";
 
 export function PatientDetailsPage() {
     const { id } = useParams({ from: "/patients/$id" });
 
-    const { data: patient, isLoading } = useQuery({
+    const { data: patient, isLoading, error } = useQuery({
         queryKey: ["patient", id],
         queryFn: async () => {
             return apiRequest<UserResponseDto>(`/users/${id}`);
         },
+        retry: (failureCount, error) => {
+            if ((error as any)?.response?.status === 403) {
+                return false;
+            }
+            return failureCount < 3;
+        },
     });
 
     if (isLoading) {
-        return <div>Loading...</div>;
+        return <Spinner size="lg" className="min-h-screen" />;
+    }
+
+    if (error) {
+        const status = (error as any)?.response?.status;
+        if (status === 403) {
+            return <ForbiddenPage />;
+        }
+        if (status === 404) {
+            return <PatientNotFound />;
+        }
     }
 
     if (!patient) {
-        return <div>Patient not found</div>;
+        return <PatientNotFound />;
     }
 
     return (
