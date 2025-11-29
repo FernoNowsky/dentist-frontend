@@ -103,7 +103,12 @@ const routeTree = rootRoute.addChildren([
     visitsRoute
 ]);
 
-export const router = createRouter({ routeTree });
+import { NotFoundPage } from './routes/NotFoundPage';
+
+export const router = createRouter({
+    routeTree,
+    defaultNotFoundComponent: NotFoundPage
+});
 
 declare module '@tanstack/react-router' {
     interface Register {
