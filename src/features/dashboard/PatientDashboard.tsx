@@ -32,8 +32,7 @@ export function PatientDashboard({ user }: PatientDashboardProps) {
                     </CardHeader>
                     <CardContent className="flex justify-center pb-8">
                         <Button asChild>
-                            {/* TODO: Pass state/query to open visits tab */}
-                            <Link to="/patients/$id" params={{ id: user.id }}>Przejdź do wizyt</Link>
+                            <Link to="/visits" search={{ patientId: user.id }}>Przejdź do wizyt</Link>
                         </Button>
                     </CardContent>
                 </Card>

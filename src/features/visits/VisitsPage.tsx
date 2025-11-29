@@ -37,7 +37,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { format } from "date-fns";
 import { pl } from "date-fns/locale";
 import { Loader2, ChevronLeft, ChevronRight, Play, Trash2, FileText, CalendarIcon, Stethoscope } from "lucide-react";
-import { Link } from "@tanstack/react-router";
+import { Link, useSearch } from "@tanstack/react-router";
 import { useUserCheck } from "@/features/auth/hooks/useUserCheck";
 import { useCancelVisit } from "@/features/visits/hooks/useCancelVisit";
 import { cn } from "@/lib/utils";
@@ -47,7 +47,10 @@ import { useStartVisit } from "@/features/visits/hooks/useStartVisit";
 
 export function VisitsPage() {
     const { data: currentUser } = useUserCheck();
-    const [selectedDoctorId, setSelectedDoctorId] = useState<string>(currentUser?.id || "");
+    const search = useSearch({ from: "/visits" });
+    const patientIdFromUrl = (search as any)?.patientId;
+
+    const [selectedDoctorId, setSelectedDoctorId] = useState<string>("all");
     const [status, setStatus] = useState<string>("all");
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(20);
@@ -57,6 +60,10 @@ export function VisitsPage() {
     const startVisitMutation = useStartVisit();
 
     const debouncedPatientFilter = useDebounce(patientFilter, 500);
+
+    // If patientId is provided in URL or user is a patient, use it
+    const effectivePatientId = patientIdFromUrl || (currentUser?.role === "USER" ? currentUser.id : undefined);
+    const isPatientView = !!effectivePatientId;
 
     if (!selectedDoctorId && currentUser?.id) {
         setSelectedDoctorId(currentUser.id);
@@ -82,7 +89,7 @@ export function VisitsPage() {
             };
             return apiRequest<PageResponseDto<UserResponseDto>>("/users", { params });
         },
-        enabled: !!debouncedPatientFilter,
+        enabled: !!debouncedPatientFilter && !effectivePatientId,
     });
 
     const searchedPatientId = patientSearchResponse?.content?.[0]?.id;
@@ -103,13 +110,14 @@ export function VisitsPage() {
 
             return apiRequest<PageResponseDto<VisitResponseDto>>("/visits", { params });
         },
+        enabled: !isPatientView,
     });
 
     const { data: visitsResponse, isLoading } = useQuery({
-        queryKey: ["visits-page", selectedDoctorId, status, page, size, searchedPatientId, debouncedPatientFilter, dateRange],
+        queryKey: ["visits-page", selectedDoctorId, status, page, size, searchedPatientId, debouncedPatientFilter, dateRange, effectivePatientId],
         queryFn: async () => {
             // if filter is typed but no patient found, return empty list
-            if (debouncedPatientFilter && !searchedPatientId && !isPatientSearchLoading) {
+            if (debouncedPatientFilter && !searchedPatientId && !isPatientSearchLoading && !effectivePatientId) {
                 return {
                     content: [],
                     page: 0,
@@ -135,7 +143,9 @@ export function VisitsPage() {
                 params.status = status as any;
             }
 
-            if (searchedPatientId) {
+            if (effectivePatientId) {
+                params.patientId = effectivePatientId;
+            } else if (searchedPatientId) {
                 params.patientId = searchedPatientId;
             }
 
@@ -154,14 +164,14 @@ export function VisitsPage() {
                     params.dateTimeEnd = endOfDay.toISOString();
                 }
             } else {
-                if (!searchedPatientId) {
+                if (!searchedPatientId && !effectivePatientId) {
                     params.dateTimeEnd = new Date().toISOString();
                 }
             }
 
             return apiRequest<PageResponseDto<VisitResponseDto>>("/visits", { params });
         },
-        enabled: !debouncedPatientFilter || (!!debouncedPatientFilter && !isPatientSearchLoading),
+        enabled: (!debouncedPatientFilter || (!!debouncedPatientFilter && !isPatientSearchLoading)) || !!effectivePatientId,
     });
 
     const startedVisits = startedVisitsResponse?.content || [];
@@ -364,7 +374,7 @@ export function VisitsPage() {
             {startedVisits.length > 0 && (
                 <Card className="border-blue-200 bg-blue-50/30">
                     <CardHeader>
-                        <CardTitle className="text-blue-700 flex items-center gap-2">
+                        <CardTitle className="text-primary flex items-center gap-2">
                             <Play className="h-5 w-5" />
                             Wizyty w trakcie
                         </CardTitle>
@@ -438,18 +448,20 @@ export function VisitsPage() {
                             </Select>
                         </div>
 
-                        <div className="flex flex-col gap-2 w-[200px]">
-                            <Label htmlFor="patient-filter">Nazwisko/PESEL/Telefon</Label>
-                            <Input
-                                id="patient-filter"
-                                placeholder=""
-                                value={patientFilter}
-                                onChange={(e) => {
-                                    setPatientFilter(e.target.value);
-                                    setPage(0);
-                                }}
-                            />
-                        </div>
+                        {!effectivePatientId && (
+                            <div className="flex flex-col gap-2 w-[200px]">
+                                <Label htmlFor="patient-filter">Nazwisko/PESEL/Telefon</Label>
+                                <Input
+                                    id="patient-filter"
+                                    placeholder=""
+                                    value={patientFilter}
+                                    onChange={(e) => {
+                                        setPatientFilter(e.target.value);
+                                        setPage(0);
+                                    }}
+                                />
+                            </div>
+                        )}
 
                         <div className="flex flex-col gap-2 w-[250px]">
                             <Label>Data</Label>
