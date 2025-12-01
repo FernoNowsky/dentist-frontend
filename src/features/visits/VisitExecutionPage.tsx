@@ -24,6 +24,7 @@ export function VisitExecutionPage() {
         handleRemoveProcedure,
         handleUpdateProcedurePrice,
         handleUploadDocument,
+        handleDeleteDocument,
         handleUpdateNote,
         handleFinishVisit,
         isFinishing
@@ -131,7 +132,10 @@ export function VisitExecutionPage() {
                             proceduresDictionary={proceduresDictionary}
                             selectedToothParts={selectedToothParts}
                             onAddDiagnose={onAddDiagnoseWrapper}
-                            onAddProcedure={handleAddProcedure}
+                            onAddProcedure={(parts, id, price, healed) => {
+                                handleAddProcedure(parts, id, price, healed);
+                                setSelectedToothParts([]);
+                            }}
                         />
                     )}
                 </div>
@@ -145,6 +149,7 @@ export function VisitExecutionPage() {
                     onRemoveProcedure={handleRemoveProcedure}
                     onUpdateProcedurePrice={handleUpdateProcedurePrice}
                     onUploadDocument={handleUploadDocument}
+                    onDeleteDocument={handleDeleteDocument}
                     onUpdateNote={handleUpdateNote}
                     note={visit.comment || ""}
                 />

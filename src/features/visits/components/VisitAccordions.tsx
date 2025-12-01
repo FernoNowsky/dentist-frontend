@@ -1,9 +1,10 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-import { History, FileEdit } from 'lucide-react';
+import { History, FileEdit, Trash2 } from 'lucide-react';
+import { DocumentPreview } from './DocumentPreview';
 import {
     type DocumentResponseDto,
     type ToothProcedureResponseDto,
@@ -19,18 +20,22 @@ interface VisitAccordionsProps {
     onRemoveProcedure: (index: number) => void;
     onUpdateProcedurePrice: (index: number, newPrice: number) => void;
     onUploadDocument: (file: File, title: string, description: string) => void;
+    onDeleteDocument?: (id: string) => void;
     onUpdateNote: (note: string) => void;
 
     note: string;
 }
 
-const AccordionItem = ({ title, children, isOpen, onClick }: { title: string, children: React.ReactNode, isOpen: boolean, onClick: () => void }) => (
+const AccordionItem = ({ title, summary, children, isOpen, onClick }: { title: string, summary?: React.ReactNode, children: React.ReactNode, isOpen: boolean, onClick: () => void }) => (
     <div className="border border-primary/20 rounded-md mb-2 overflow-hidden">
         <button
             className="w-full text-left p-4 font-semibold bg-background text-foreground hover:bg-muted transition-all duration-200 flex justify-between items-center border-b border-primary/10"
             onClick={onClick}
         >
-            <span>{title}</span>
+            <div className="flex items-center gap-2">
+                <span>{title}</span>
+                {summary && <span className="text-sm font-normal text-muted-foreground">{summary}</span>}
+            </div>
             <span className="transition-transform duration-200" style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
         </button>
         <div
@@ -54,6 +59,7 @@ export const VisitAccordions = ({
     onRemoveProcedure,
     onUpdateProcedurePrice,
     onUploadDocument,
+    onDeleteDocument,
     onUpdateNote,
     note,
     readOnly = false
@@ -70,7 +76,7 @@ export const VisitAccordions = ({
     };
 
     const handleUploadDocument = () => {
-        if (file && docTitle) {
+        if (file && docTitle && docDesc) {
             onUploadDocument(file, docTitle, docDesc);
             setFile(null);
             setDocTitle('');
@@ -81,10 +87,16 @@ export const VisitAccordions = ({
         }
     };
 
+    const diagnosesCount = visitDiagnoses.length;
+    const proceduresCount = visitProcedures.length;
+    const proceduresCost = visitProcedures.reduce((acc, curr) => acc + curr.cost, 0);
+    const documentsCount = documents.length;
+
     return (
         <div className="w-full space-y-2">
             <AccordionItem
                 title="Rozpoznania"
+                summary={diagnosesCount > 0 ? `(${diagnosesCount})` : null}
                 isOpen={openSection === 'diagnoses'}
                 onClick={() => toggleSection('diagnoses')}
             >
@@ -148,17 +160,13 @@ export const VisitAccordions = ({
 
             <AccordionItem
                 title="Procedury"
+                summary={proceduresCount > 0 ? `${proceduresCount} (${proceduresCost.toFixed(2)} PLN)` : null}
                 isOpen={openSection === 'procedures'}
                 onClick={() => toggleSection('procedures')}
             >
                 <div className="space-y-4">
                     <div className="flex justify-between items-center mb-2">
                         <h4 className="font-bold">Lista procedur</h4>
-                        {visitProcedures.length > 0 && (
-                            <span className="text-sm font-medium">
-                                ({visitProcedures.length}) {visitProcedures.reduce((acc, curr) => acc + curr.cost, 0).toFixed(2)} PLN
-                            </span>
-                        )}
                     </div>
 
                     {visitProcedures.length === 0 ? (
@@ -209,45 +217,58 @@ export const VisitAccordions = ({
 
             <AccordionItem
                 title="Dokumenty"
+                summary={documentsCount > 0 ? `(${documentsCount})` : null}
                 isOpen={openSection === 'documents'}
                 onClick={() => toggleSection('documents')}
             >
                 <div className="space-y-4">
                     {!readOnly && (
-                        <>
-                            <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium">Plik</label>
-                                <Input
-                                    type="file"
-                                    ref={fileInputRef}
-                                    onChange={(e) => setFile(e.target.files?.[0] || null)}
-                                />
-                            </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-4">
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm font-medium">Plik</label>
+                                    <Input
+                                        type="file"
+                                        ref={fileInputRef}
+                                        onChange={(e) => setFile(e.target.files?.[0] || null)}
+                                    />
+                                </div>
 
-                            <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium">Tytuł</label>
-                                <Input
-                                    value={docTitle}
-                                    onChange={(e) => setDocTitle(e.target.value)}
-                                />
-                            </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm font-medium">Tytuł</label>
+                                    <Input
+                                        value={docTitle}
+                                        onChange={(e) => setDocTitle(e.target.value)}
+                                    />
+                                </div>
 
-                            <div className="flex flex-col gap-2">
-                                <label className="text-sm font-medium">Opis</label>
-                                <Input
-                                    value={docDesc}
-                                    onChange={(e) => setDocDesc(e.target.value)}
-                                />
-                            </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-sm font-medium">Opis</label>
+                                    <Input
+                                        value={docDesc}
+                                        onChange={(e) => setDocDesc(e.target.value)}
+                                    />
+                                </div>
 
-                            <Button
-                                onClick={handleUploadDocument}
-                                disabled={!file || !docTitle}
-                                className="w-full"
-                            >
-                                Wgraj dokument
-                            </Button>
-                        </>
+                                <Button
+                                    onClick={handleUploadDocument}
+                                    disabled={!file || !docTitle || !docDesc}
+                                    className="w-full"
+                                >
+                                    Wgraj dokument
+                                </Button>
+                            </div>
+                            <div className="flex items-center justify-center border rounded-md bg-muted/20 p-4">
+                                {file ? (
+                                    <div className="w-full h-full flex flex-col items-center">
+                                        <p className="text-sm font-medium mb-2">Podgląd wybranego pliku</p>
+                                        <DocumentPreview file={file} className="w-full max-h-[200px] object-contain" />
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground">Wybierz plik aby zobaczyć podgląd</p>
+                                )}
+                            </div>
+                        </div>
                     )}
 
                     <div className="mt-4">
@@ -255,14 +276,33 @@ export const VisitAccordions = ({
                         {documents.length === 0 ? (
                             <p className="text-sm text-gray-500 text-center">Brak dokumentów</p>
                         ) : (
-                            <ul className="space-y-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                                 {documents.map((doc, i) => (
-                                    <li key={i} className="text-sm border p-2 rounded bg-gray-50">
-                                        <div className="font-bold">{doc.title}</div>
-                                        {doc.description && <div className="text-xs text-gray-500">{doc.description}</div>}
-                                    </li>
+                                    <div key={i} className="border rounded-md overflow-hidden bg-card shadow-sm flex flex-col">
+                                        <div className="aspect-video w-full bg-muted">
+                                            <DocumentPreview documentId={doc.id} title={doc.title} className="w-full h-full" />
+                                        </div>
+                                        <div className="p-3 flex flex-col flex-1">
+                                            <div className="font-bold text-sm truncate" title={doc.title}>{doc.title}</div>
+                                            {doc.description && <div className="text-xs text-muted-foreground line-clamp-2 mb-2">{doc.description}</div>}
+
+                                            {!readOnly && onDeleteDocument && (
+                                                <div className="mt-auto pt-2 flex justify-end">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 px-2"
+                                                        onClick={() => onDeleteDocument(doc.id)}
+                                                    >
+                                                        <Trash2 className="h-4 w-4 mr-1" />
+                                                        Usuń
+                                                    </Button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 ))}
-                            </ul>
+                            </div>
                         )}
                     </div>
                 </div>
@@ -273,15 +313,32 @@ export const VisitAccordions = ({
                 isOpen={openSection === 'notes'}
                 onClick={() => toggleSection('notes')}
             >
-                <Textarea
+                <NoteInput
                     value={note}
-                    onChange={(e) => onUpdateNote(e.target.value)}
-                    placeholder={readOnly ? "Brak notatki" : "Dodaj notatkę do wizyty..."}
-                    rows={5}
+                    onChange={onUpdateNote}
                     readOnly={readOnly}
-                    className={readOnly ? "bg-muted" : ""}
                 />
             </AccordionItem>
         </div>
+    );
+};
+
+const NoteInput = ({ value, onChange, readOnly }: { value: string, onChange: (val: string) => void, readOnly?: boolean }) => {
+    const [localValue, setLocalValue] = useState(value);
+
+    useEffect(() => {
+        setLocalValue(value);
+    }, [value]);
+
+    return (
+        <Textarea
+            value={localValue}
+            onChange={(e) => setLocalValue(e.target.value)}
+            onBlur={() => onChange(localValue)}
+            placeholder={readOnly ? "Brak notatki" : "Dodaj notatkę do wizyty..."}
+            rows={5}
+            readOnly={readOnly}
+            className={readOnly ? "bg-muted" : ""}
+        />
     );
 };

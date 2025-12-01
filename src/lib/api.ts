@@ -39,11 +39,12 @@ interface ApiRequestOptions {
     data?: any;
     requiresAuth?: boolean;
     requiresAdmin?: boolean;
+    responseType?: 'json' | 'blob' | 'text' | 'arraybuffer';
 }
 
 export async function apiRequest<T = unknown>(
     path: string,
-    { params = {}, method = "get", data, requiresAuth = true, requiresAdmin = false }: ApiRequestOptions = {}
+    { params = {}, method = "get", data, requiresAuth = true, requiresAdmin = false, responseType = 'json' }: ApiRequestOptions = {}
 ): Promise<T> {
     const baseUrl = API_URL;
 
@@ -54,6 +55,7 @@ export async function apiRequest<T = unknown>(
         method,
         params,
         data,
+        responseType,
         headers: {
             ...($axios.defaults.headers.common),
             'X-Requires-Auth': requiresAuth.toString(),

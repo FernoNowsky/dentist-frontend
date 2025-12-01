@@ -96,6 +96,20 @@ export const useVisitExecution = (visitId: string) => {
         }
     });
 
+    const deleteDocumentMutation = useMutation({
+        mutationFn: (documentId: string) =>
+            apiRequest<void>(`/documents/${documentId}`, {
+                method: 'delete',
+            }),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['visit', visitId] });
+            toast.success('Dokument usunięty');
+        },
+        onError: () => {
+            toast.error('Błąd podczas usuwania dokumentu');
+        }
+    });
+
     const [localDiagnoses, setLocalDiagnoses] = useState<ToothDiagnoseCreateDto[]>([]);
     const [localProcedures, setLocalProcedures] = useState<ToothProcedureCreateDto[]>([]);
     const [note, setNote] = useState('');
@@ -285,6 +299,7 @@ export const useVisitExecution = (visitId: string) => {
             status: 'COMPLETED',
             toothDiagnoses: localDiagnoses,
             toothProcedures: localProcedures,
+            comment: note
         });
     };
 
@@ -334,6 +349,7 @@ export const useVisitExecution = (visitId: string) => {
         handleRemoveProcedure,
         handleUpdateProcedurePrice,
         handleUploadDocument: handleUploadDocumentWrapper,
+        handleDeleteDocument: (id: string) => deleteDocumentMutation.mutate(id),
         handleUpdateNote,
         handleFinishVisit,
         isFinishing: updateVisitMutation.isPending
