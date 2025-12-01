@@ -10,6 +10,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { CreateVisitDialog } from "@/features/visits/components/CreateVisitDialog";
 import { ScheduledVisits } from "@/features/patients/components/ScheduledVisits";
 import { VisitHistory } from "@/features/patients/components/VisitHistory";
+import { PatientDocuments } from "@/features/patients/components/PatientDocuments";
 import { Spinner } from "@/components/ui/spinner";
 import { ForbiddenPage } from "@/routes/ForbiddenPage";
 import { PatientNotFound } from "@/features/patients/components/PatientNotFound";
@@ -138,8 +139,8 @@ export function PatientDetailsPage() {
                     <TabsContent value="scheduled" className="mt-6">
                         <ScheduledVisits patientId={patient.id} />
                     </TabsContent>
-                    <TabsContent value="documents">
-                        <div className="py-4">Dokumenty - placeholder</div>
+                    <TabsContent value="documents" className="mt-6">
+                        <PatientDocuments patientId={patient.id} />
                     </TabsContent>
                     <TabsContent value="history" className="mt-6">
                         <VisitHistory patientId={patient.id} />

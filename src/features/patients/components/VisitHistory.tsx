@@ -40,6 +40,8 @@ export function VisitHistory({ patientId }: VisitHistoryProps) {
                 dateTimeEnd: now.toISOString(),
                 patientId: patientId,
                 size: 100,
+                sortBy: "dateTimeStart",
+                sortDirection: "DESC"
             };
 
             if (selectedDoctorId) {
