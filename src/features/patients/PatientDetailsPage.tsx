@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Navbar } from "@/components/layout/Navbar";
-import { CreateVisitDialog } from "@/features/visits/components/CreateVisitDialog";
+
 import { ScheduledVisits } from "@/features/patients/components/ScheduledVisits";
 import { VisitHistory } from "@/features/patients/components/VisitHistory";
 import { PatientDocuments } from "@/features/patients/components/PatientDocuments";
@@ -61,10 +61,7 @@ export function PatientDetailsPage() {
                             {patient.firstName} {patient.lastName} | PESEL: {patient.pesel || "Brak"}
                         </p>
                     </div>
-                    <CreateVisitDialog
-                        patientId={patient.id}
-                        patientName={`${patient.firstName} ${patient.lastName}`}
-                    />
+
                 </div>
 
                 <Tabs defaultValue="personal" className="w-full">

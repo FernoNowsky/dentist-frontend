@@ -10,6 +10,7 @@ import { VisitExecutionPage } from './features/visits/VisitExecutionPage';
 import { VisitDetailsPage } from './features/visits/VisitDetailsPage';
 import { VisitsPage } from './features/visits/VisitsPage';
 import { Navbar } from './components/layout/Navbar';
+import { SettingsPage } from './features/settings/SettingsPage';
 
 import { Toaster } from 'sonner';
 
@@ -92,6 +93,12 @@ const visitsRoute = createRoute({
     ),
 });
 
+const settingsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: '/settings',
+    component: SettingsPage,
+});
+
 const routeTree = rootRoute.addChildren([
     indexRoute,
     aboutRoute,
@@ -100,7 +107,8 @@ const routeTree = rootRoute.addChildren([
     patientDetailsRoute,
     visitExecutionRoute,
     visitDetailsRoute,
-    visitsRoute
+    visitsRoute,
+    settingsRoute
 ]);
 
 import { NotFoundPage } from './routes/NotFoundPage';

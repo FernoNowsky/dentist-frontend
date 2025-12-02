@@ -4,6 +4,7 @@ export interface PageRequestDto {
     filter?: string;
     sortBy?: string;
     sortDirection?: 'ASC' | 'DESC';
+    sort?: string[];
 }
 
 export interface UserPageRequestDto extends PageRequestDto {
