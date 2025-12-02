@@ -14,9 +14,15 @@ import { PatientDocuments } from "@/features/patients/components/PatientDocument
 import { Spinner } from "@/components/ui/spinner";
 import { ForbiddenPage } from "@/routes/ForbiddenPage";
 import { PatientNotFound } from "@/features/patients/components/PatientNotFound";
+import { CreateVisitDialog } from "@/features/visits/components/CreateVisitDialog";
+import { useUserCheck } from "@/features/auth/hooks/useUserCheck";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 export function PatientDetailsPage() {
     const { id } = useParams({ from: "/patients/$id" });
+    const { data: currentUser } = useUserCheck();
+    const [isCreateVisitOpen, setIsCreateVisitOpen] = useState(false);
 
     const { data: patient, isLoading, error } = useQuery({
         queryKey: ["patient", id],
@@ -61,7 +67,11 @@ export function PatientDetailsPage() {
                             {patient.firstName} {patient.lastName} | PESEL: {patient.pesel || "Brak"}
                         </p>
                     </div>
-
+                    {currentUser?.role === "ADMIN" && (
+                        <Button onClick={() => setIsCreateVisitOpen(true)}>
+                            Utwórz wizytę
+                        </Button>
+                    )}
                 </div>
 
                 <Tabs defaultValue="personal" className="w-full">
@@ -144,6 +154,13 @@ export function PatientDetailsPage() {
                     </TabsContent>
                 </Tabs>
             </main>
+            {currentUser?.role === "ADMIN" && patient && (
+                <CreateVisitDialog
+                    open={isCreateVisitOpen}
+                    onOpenChange={setIsCreateVisitOpen}
+                    patient={patient}
+                />
+            )}
         </div>
     );
 }

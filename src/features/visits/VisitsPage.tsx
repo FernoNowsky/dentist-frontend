@@ -254,7 +254,7 @@ export function VisitsPage() {
                                 </TableCell>
                                 <TableCell className="text-right">
                                     <div className="flex justify-end gap-2">
-                                        {visit.status === "PLANNED" && (
+                                        {visit.status === "PLANNED" && currentUser?.role === "ADMIN" && (
                                             <>
                                                 <Button size="sm" onClick={() => startVisitMutation.mutate(visit.id)}>
                                                     <Stethoscope className="mr-2 h-4 w-4" />
@@ -287,7 +287,7 @@ export function VisitsPage() {
                                                 </AlertDialog>
                                             </>
                                         )}
-                                        {visit.status === "STARTED" && (
+                                        {visit.status === "STARTED" && currentUser?.role === "ADMIN" && (
                                             <Button size="sm" asChild>
                                                 <Link to="/visits/$visitId/execution" params={{ visitId: visit.id }}>
                                                     <Stethoscope className="mr-2 h-4 w-4" />
