@@ -50,6 +50,7 @@ export function DoctorDashboard() {
                 doctorId: currentUser.id,
                 status: "PLANNED",
                 size: 100,
+                sort: ["dateTimeStart,ASC"],
             };
 
             return apiRequest<PageResponseDto<VisitResponseDto>>("/visits", { params });
