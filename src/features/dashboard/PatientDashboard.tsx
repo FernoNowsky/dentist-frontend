@@ -29,7 +29,7 @@ export function PatientDashboard({ user }: PatientDashboardProps) {
         },
         {
             title: "Twoje wizyty",
-            description: "Zarządzaj swoimi wizytami i planuj nowe",
+            description: "Zarządzaj swoimi wizytami",
             icon: <Calendar className="w-8 h-8 text-primary" />,
             bgImage: visitsBg,
             action: (

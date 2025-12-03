@@ -91,7 +91,6 @@ export function CompleteProfileDialog({ open }: CompleteProfileDialogProps) {
                 </DialogHeader>
                 <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-2 gap-8 py-4">
-                        {/* Left Column: Personal Data */}
                         <div className="space-y-4">
                             <h3 className="font-semibold text-lg">Dane pacjenta</h3>
 
@@ -135,7 +134,7 @@ export function CompleteProfileDialog({ open }: CompleteProfileDialogProps) {
                                     id="pesel"
                                     value={formData.pesel}
                                     onChange={(e) => {
-                                        const newPesel = e.target.value;
+                                        const newPesel = e.target.value.replace(/\D/g, '');
                                         const birthDate = getBirthDateFromPesel(newPesel);
                                         const gender = getGenderFromPesel(newPesel);
                                         setFormData(prev => ({
@@ -165,7 +164,7 @@ export function CompleteProfileDialog({ open }: CompleteProfileDialogProps) {
                                 <Input
                                     id="phone"
                                     value={formData.phone}
-                                    onChange={(e) => updateField("phone", e.target.value)}
+                                    onChange={(e) => updateField("phone", e.target.value.replace(/\D/g, ''))}
                                     maxLength={9}
                                     placeholder="123456789"
                                     required
@@ -191,7 +190,7 @@ export function CompleteProfileDialog({ open }: CompleteProfileDialogProps) {
                                     <Input
                                         id="houseNumber"
                                         value={formData.houseNumber}
-                                        onChange={(e) => updateField("houseNumber", e.target.value)}
+                                        onChange={(e) => updateField("houseNumber", e.target.value.replace(/\D/g, ''))}
                                         required
                                     />
                                     {errors.houseNumber && <p className="text-red-500 text-sm">{errors.houseNumber}</p>}
@@ -201,7 +200,7 @@ export function CompleteProfileDialog({ open }: CompleteProfileDialogProps) {
                                     <Input
                                         id="flatNumber"
                                         value={formData.flatNumber}
-                                        onChange={(e) => updateField("flatNumber", e.target.value)}
+                                        onChange={(e) => updateField("flatNumber", e.target.value.replace(/\D/g, ''))}
                                     />
                                 </div>
                             </div>
@@ -222,7 +221,12 @@ export function CompleteProfileDialog({ open }: CompleteProfileDialogProps) {
                                     <Input
                                         id="postalCode"
                                         value={formData.postalCode}
-                                        onChange={(e) => updateField("postalCode", e.target.value)}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/[^0-9-]/g, '');
+                                            if ((val.match(/-/g) || []).length <= 1) {
+                                                updateField("postalCode", val);
+                                            }
+                                        }}
                                         placeholder="00-000"
                                         maxLength={6}
                                         required
