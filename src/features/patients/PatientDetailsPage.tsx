@@ -11,6 +11,7 @@ import { Navbar } from "@/components/layout/Navbar";
 import { ScheduledVisits } from "@/features/patients/components/ScheduledVisits";
 import { VisitHistory } from "@/features/patients/components/VisitHistory";
 import { PatientDocuments } from "@/features/patients/components/PatientDocuments";
+import { DentalStatusTab } from "@/features/patients/components/DentalStatusTab";
 import { Spinner } from "@/components/ui/spinner";
 import { ForbiddenPage } from "@/routes/ForbiddenPage";
 import { PatientNotFound } from "@/features/patients/components/PatientNotFound";
@@ -21,7 +22,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { validatePatientForm, type ValidationErrors } from "@/features/patients/utils/validation";
 
- 
+
 
 export function PatientDetailsPage() {
     const { id } = useParams({ from: "/patients/$id" });
@@ -44,9 +45,9 @@ export function PatientDetailsPage() {
         city: "",
         postalCode: "",
     });
-    
+
     const [errors, setErrors] = useState<ValidationErrors>({});
-    
+
     const validateForm = (): boolean => {
         const newErrors = validatePatientForm(formData);
         setErrors(newErrors);
@@ -65,7 +66,7 @@ export function PatientDetailsPage() {
             toast.error("Wystąpił błąd podczas zapisywania profilu.");
         },
     });
-    
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -75,7 +76,7 @@ export function PatientDetailsPage() {
 
         updatePatientMutation.mutate(formData);
     };
-    
+
     const updateField = (field: keyof PatientUpdateDto, value: string) => {
         if (field === "pesel") {
             const birthDate = getBirthDateFromPesel(value) || "";
@@ -162,6 +163,7 @@ export function PatientDetailsPage() {
                 <Tabs defaultValue="personal" className="w-full">
                     <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
                         <TabsTrigger value="personal" className="data-[state=active]:text-primary rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2">Dane osobowe</TabsTrigger>
+                        <TabsTrigger value="dental-status" className="data-[state=active]:text-primary rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2">Stan uzębienia</TabsTrigger>
                         <TabsTrigger value="scheduled" className="data-[state=active]:text-primary rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2">Umówione wizyty</TabsTrigger>
                         <TabsTrigger value="documents" className="data-[state=active]:text-primary rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2">Dokumenty</TabsTrigger>
                         <TabsTrigger value="history" className="data-[state=active]:text-primary rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent px-4 py-2">Historia wizyt</TabsTrigger>
@@ -253,6 +255,9 @@ export function PatientDetailsPage() {
                     </TabsContent>
                     <TabsContent value="documents" className="mt-6">
                         <PatientDocuments patientId={patient.id} />
+                    </TabsContent>
+                    <TabsContent value="dental-status" className="mt-6">
+                        <DentalStatusTab patientId={patient.id} />
                     </TabsContent>
                     <TabsContent value="history" className="mt-6">
                         <VisitHistory patientId={patient.id} />
