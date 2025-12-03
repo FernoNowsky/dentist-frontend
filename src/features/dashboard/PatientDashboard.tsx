@@ -4,9 +4,9 @@ import { Link } from "@tanstack/react-router";
 import type { UserResponseDto } from "@/types/api";
 import { User, Calendar, Settings, ArrowRight } from "lucide-react";
 
-import patientCardBg from "@/assets/patient-card-bg.png";
+import patientCardBg from "@/assets/patient-card-bg.jpg";
 import visitsBg from "@/assets/visits-bg.png";
-import settingsBg from "@/assets/settings-bg.png";
+import settingsBg from "@/assets/settings-bg.jpg";
 
 interface PatientDashboardProps {
     user: UserResponseDto;
