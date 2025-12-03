@@ -19,10 +19,9 @@ import { useUserCheck } from "@/features/auth/hooks/useUserCheck";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { toast } from "sonner";
+import { validatePatientForm, type ValidationErrors } from "@/features/patients/utils/validation";
 
-interface ValidationErrors {
-    [key: string]: string;
-}
+ 
 
 export function PatientDetailsPage() {
     const { id } = useParams({ from: "/patients/$id" });
@@ -30,104 +29,31 @@ export function PatientDetailsPage() {
     const [isCreateVisitOpen, setIsCreateVisitOpen] = useState(false);
     const queryClient = useQueryClient();
 
-     const [formData, setFormData] = useState<PatientUpdateDto>({
-            username: "",
-            firstName: "",
-            lastName: "",
-            email: "",
-            pesel: "",
-            phone: "",
-            birthday: "",
-            gender: "",
-            street: "",
-            houseNumber: "",
-            flatNumber: "",
-            city: "",
-            postalCode: "",
-        });
+    const [formData, setFormData] = useState<PatientUpdateDto>({
+        username: "",
+        firstName: "",
+        lastName: "",
+        email: "",
+        pesel: "",
+        phone: "",
+        birthday: "",
+        gender: "",
+        street: "",
+        houseNumber: "",
+        flatNumber: "",
+        city: "",
+        postalCode: "",
+    });
     
-        const [errors, setErrors] = useState<ValidationErrors>({});
+    const [errors, setErrors] = useState<ValidationErrors>({});
     
-      const validatePesel = (pesel: string): boolean => {
-            if (!/^\d{11}$/.test(pesel)) return false;
-    
-            // Validate PESEL checksum
-            const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
-            const digits = pesel.split('').map(Number);
-            const sum = weights.reduce((acc, weight, i) => acc + weight * digits[i], 0);
-            const checksum = (10 - (sum % 10)) % 10;
-    
-            return checksum === digits[10];
-        };
-    
-        const validatePhone = (phone: string): boolean => {
-            return /^\d{9}$/.test(phone);
-        };
-    
-        const validateEmail = (email: string): boolean => {
-            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-        };
-    
-        const validatePostalCode = (code: string): boolean => {
-            return /^\d{2}-\d{3}$/.test(code);
-        };
-    
-        const validateForm = (): boolean => {
-            const newErrors: ValidationErrors = {};
-    
-            if (!formData.firstName.trim()) {
-                newErrors.firstName = "Imię jest wymagane";
-            }
-    
-            if (!formData.lastName.trim()) {
-                newErrors.lastName = "Nazwisko jest wymagane";
-            }
-    
-            if (!validateEmail(formData.email)) {
-                newErrors.email = "Nieprawidłowy adres email";
-            }
-    
-            if (!validatePesel(formData.pesel)) {
-                newErrors.pesel = "PESEL musi składać się z 11 cyfr i być poprawny";
-            }
-    
-            if (!validatePhone(formData.phone)) {
-                newErrors.phone = "Numer telefonu musi składać się z 9 cyfr";
-            }
-    
-            if (!formData.birthday) {
-                newErrors.birthday = "Data urodzenia jest wymagana";
-            }
-    
-            if (!formData.gender) {
-                newErrors.gender = "Płeć jest wymagana";
-            }
-    
-            if (!formData.street?.trim()) {
-                newErrors.street = "Ulica jest wymagana";
-            }
-    
-            if (!formData.houseNumber?.trim()) {
-                newErrors.houseNumber = "Numer domu jest wymagany";
-            }
-    
-            if (!formData.city?.trim()) {
-                newErrors.city = "Miejscowość jest wymagana";
-            }
-    
-            if (formData.postalCode && !validatePostalCode(formData.postalCode)) {
-                newErrors.postalCode = "Kod pocztowy musi być w formacie XX-XXX";
-            }
-    
-            if (!formData.postalCode?.trim()) {
-                newErrors.postalCode = "Kod pocztowy jest wymagany";
-            }
-    
-            setErrors(newErrors);
-            return Object.keys(newErrors).length === 0;
-        };
+    const validateForm = (): boolean => {
+        const newErrors = validatePatientForm(formData);
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
 
-        const updatePatientMutation = useMutation({
+    const updatePatientMutation = useMutation({
         mutationFn: async (data: PatientUpdateDto) => {
             await apiRequest(`/users/patient/${id}`, { method: "put", data });
         },
@@ -140,29 +66,29 @@ export function PatientDetailsPage() {
         },
     });
     
-        const handleSubmit = (e: React.FormEvent) => {
-            e.preventDefault();
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (!validateForm()) {
+            return;
+        }
+
+        updatePatientMutation.mutate(formData);
+    };
     
-            if (!validateForm()) {
-                return;
-            }
-    
-            updatePatientMutation.mutate(formData);
-        };
-    
-        const updateField = (field: keyof PatientUpdateDto, value: string) => {
-            if (field === "pesel") {
-                const birthDate = getBirthDateFromPesel(value) || "";
-                const gender = getGenderFromPesel(value) || formData.gender || "";
-                setFormData({ ...formData, pesel: value, birthday: birthDate, gender });
-            } else {
-                setFormData({ ...formData, [field]: value });
-            }
-            // Clear error for this field when user starts typing
-            if (errors[field]) {
-                setErrors({ ...errors, [field]: "" });
-            }
-        };
+    const updateField = (field: keyof PatientUpdateDto, value: string) => {
+        if (field === "pesel") {
+            const birthDate = getBirthDateFromPesel(value) || "";
+            const gender = getGenderFromPesel(value) || formData.gender || "";
+            setFormData({ ...formData, pesel: value, birthday: birthDate, gender });
+        } else {
+            setFormData({ ...formData, [field]: value });
+        }
+        // Clear error for this field when user starts typing
+        if (errors[field]) {
+            setErrors({ ...errors, [field]: "" });
+        }
+    };
 
     const { data: patient, isLoading, error } = useQuery({
         queryKey: ["patient", id],
