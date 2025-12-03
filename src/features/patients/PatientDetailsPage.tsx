@@ -1,8 +1,8 @@
 import { useParams } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api";
-import { getGenderFromPesel } from "@/lib/utils";
-import type { UserResponseDto } from "@/types/api";
+import { getBirthDateFromPesel, getGenderFromPesel } from "@/lib/utils";
+import type { PatientUpdateDto, UserResponseDto } from "@/types/api";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,11 +18,151 @@ import { CreateVisitDialog } from "@/features/visits/components/CreateVisitDialo
 import { useUserCheck } from "@/features/auth/hooks/useUserCheck";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
+import { toast } from "sonner";
+
+interface ValidationErrors {
+    [key: string]: string;
+}
 
 export function PatientDetailsPage() {
     const { id } = useParams({ from: "/patients/$id" });
     const { data: currentUser } = useUserCheck();
     const [isCreateVisitOpen, setIsCreateVisitOpen] = useState(false);
+    const queryClient = useQueryClient();
+
+     const [formData, setFormData] = useState<PatientUpdateDto>({
+            username: "",
+            firstName: "",
+            lastName: "",
+            email: "",
+            pesel: "",
+            phone: "",
+            birthday: "",
+            gender: "",
+            street: "",
+            houseNumber: "",
+            flatNumber: "",
+            city: "",
+            postalCode: "",
+        });
+    
+        const [errors, setErrors] = useState<ValidationErrors>({});
+    
+      const validatePesel = (pesel: string): boolean => {
+            if (!/^\d{11}$/.test(pesel)) return false;
+    
+            // Validate PESEL checksum
+            const weights = [1, 3, 7, 9, 1, 3, 7, 9, 1, 3];
+            const digits = pesel.split('').map(Number);
+            const sum = weights.reduce((acc, weight, i) => acc + weight * digits[i], 0);
+            const checksum = (10 - (sum % 10)) % 10;
+    
+            return checksum === digits[10];
+        };
+    
+        const validatePhone = (phone: string): boolean => {
+            return /^\d{9}$/.test(phone);
+        };
+    
+        const validateEmail = (email: string): boolean => {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        };
+    
+        const validatePostalCode = (code: string): boolean => {
+            return /^\d{2}-\d{3}$/.test(code);
+        };
+    
+        const validateForm = (): boolean => {
+            const newErrors: ValidationErrors = {};
+    
+            if (!formData.firstName.trim()) {
+                newErrors.firstName = "Imię jest wymagane";
+            }
+    
+            if (!formData.lastName.trim()) {
+                newErrors.lastName = "Nazwisko jest wymagane";
+            }
+    
+            if (!validateEmail(formData.email)) {
+                newErrors.email = "Nieprawidłowy adres email";
+            }
+    
+            if (!validatePesel(formData.pesel)) {
+                newErrors.pesel = "PESEL musi składać się z 11 cyfr i być poprawny";
+            }
+    
+            if (!validatePhone(formData.phone)) {
+                newErrors.phone = "Numer telefonu musi składać się z 9 cyfr";
+            }
+    
+            if (!formData.birthday) {
+                newErrors.birthday = "Data urodzenia jest wymagana";
+            }
+    
+            if (!formData.gender) {
+                newErrors.gender = "Płeć jest wymagana";
+            }
+    
+            if (!formData.street?.trim()) {
+                newErrors.street = "Ulica jest wymagana";
+            }
+    
+            if (!formData.houseNumber?.trim()) {
+                newErrors.houseNumber = "Numer domu jest wymagany";
+            }
+    
+            if (!formData.city?.trim()) {
+                newErrors.city = "Miejscowość jest wymagana";
+            }
+    
+            if (formData.postalCode && !validatePostalCode(formData.postalCode)) {
+                newErrors.postalCode = "Kod pocztowy musi być w formacie XX-XXX";
+            }
+    
+            if (!formData.postalCode?.trim()) {
+                newErrors.postalCode = "Kod pocztowy jest wymagany";
+            }
+    
+            setErrors(newErrors);
+            return Object.keys(newErrors).length === 0;
+        };
+
+        const updatePatientMutation = useMutation({
+        mutationFn: async (data: PatientUpdateDto) => {
+            await apiRequest(`/users/patient/${id}`, { method: "put", data });
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["patient", id] });
+            toast.success("Zaktualizowano dane pacjenta.");
+        },
+        onError: () => {
+            toast.error("Wystąpił błąd podczas zapisywania profilu.");
+        },
+    });
+    
+        const handleSubmit = (e: React.FormEvent) => {
+            e.preventDefault();
+    
+            if (!validateForm()) {
+                return;
+            }
+    
+            updatePatientMutation.mutate(formData);
+        };
+    
+        const updateField = (field: keyof PatientUpdateDto, value: string) => {
+            if (field === "pesel") {
+                const birthDate = getBirthDateFromPesel(value) || "";
+                const gender = getGenderFromPesel(value) || formData.gender || "";
+                setFormData({ ...formData, pesel: value, birthday: birthDate, gender });
+            } else {
+                setFormData({ ...formData, [field]: value });
+            }
+            // Clear error for this field when user starts typing
+            if (errors[field]) {
+                setErrors({ ...errors, [field]: "" });
+            }
+        };
 
     const { data: patient, isLoading, error } = useQuery({
         queryKey: ["patient", id],
@@ -36,6 +176,25 @@ export function PatientDetailsPage() {
             return failureCount < 3;
         },
     });
+
+    // Prefill form once patient is loaded
+    if (patient && !formData.username) {
+        setFormData({
+            username: patient.username || "",
+            firstName: patient.firstName || "",
+            lastName: patient.lastName || "",
+            email: patient.email || "",
+            pesel: patient.pesel || "",
+            phone: patient.phone || "",
+            birthday: patient.birthday || "",
+            gender: patient.pesel ? (getGenderFromPesel(patient.pesel) || "") : "",
+            street: patient.street || "",
+            houseNumber: patient.houseNumber || "",
+            flatNumber: patient.flatNumber || "",
+            city: patient.city || "",
+            postalCode: patient.postalCode || "",
+        });
+    }
 
     if (isLoading) {
         return <Spinner size="lg" className="min-h-screen" />;
@@ -83,65 +242,85 @@ export function PatientDetailsPage() {
                     </TabsList>
 
                     <TabsContent value="personal" className="mt-6">
-                        <div className="grid grid-cols-2 gap-12">
-                            <div className="space-y-6">
-                                <h3 className="font-semibold text-lg">Dane pacjenta</h3>
-                                <div className="space-y-2">
-                                    <Label>Imię</Label>
-                                    <Input value={patient.firstName} readOnly />
+                        <form onSubmit={handleSubmit}>
+                            <div className="grid grid-cols-2 gap-12">
+                                <div className="space-y-6">
+                                    <h3 className="font-semibold text-lg">Dane pacjenta</h3>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="firstName">Imię *</Label>
+                                        <Input id="firstName" value={formData.firstName} onChange={(e) => updateField("firstName", e.target.value)} />
+                                        {errors.firstName && <p className="text-red-500 text-sm">{errors.firstName}</p>}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="lastName">Nazwisko *</Label>
+                                        <Input id="lastName" value={formData.lastName} onChange={(e) => updateField("lastName", e.target.value)} />
+                                        {errors.lastName && <p className="text-red-500 text-sm">{errors.lastName}</p>}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="email">Email *</Label>
+                                        <Input id="email" type="email" value={formData.email} onChange={(e) => updateField("email", e.target.value)} />
+                                        {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="pesel">PESEL *</Label>
+                                        <Input id="pesel" value={formData.pesel} onChange={(e) => updateField("pesel", e.target.value)} maxLength={11} />
+                                        {errors.pesel && <p className="text-red-500 text-sm">{errors.pesel}</p>}
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Data urodzenia</Label>
+                                        <Input value={formData.birthday || "-"} readOnly />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label>Płeć</Label>
+                                        <Input value={formData.gender || "-"} readOnly />
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Nazwisko</Label>
-                                    <Input value={patient.lastName} readOnly />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>PESEL</Label>
-                                    <Input value={patient.pesel || ""} readOnly />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Data urodzenia</Label>
-                                    <Input value={patient.birthday || "-"} readOnly />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Płeć</Label>
-                                    <Input value={patient.pesel ? (getGenderFromPesel(patient.pesel) || "-") : "-"} readOnly />
+
+                                <div className="space-y-6">
+                                    <h3 className="font-semibold text-lg">Dane kontaktowe</h3>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="phone">Telefon *</Label>
+                                        <Input id="phone" value={formData.phone || ""} onChange={(e) => updateField("phone", e.target.value)} maxLength={9} />
+                                        {errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
+                                    </div>
+
+                                    <h3 className="font-semibold text-lg mt-8">Adres zamieszkania</h3>
+                                    <div className="grid grid-cols-3 gap-4">
+                                        <div className="col-span-1 space-y-2">
+                                            <Label htmlFor="street">Ulica *</Label>
+                                            <Input id="street" value={formData.street || ""} onChange={(e) => updateField("street", e.target.value)} />
+                                            {errors.street && <p className="text-red-500 text-sm">{errors.street}</p>}
+                                        </div>
+                                        <div className="col-span-1 space-y-2">
+                                            <Label htmlFor="houseNumber">Numer domu *</Label>
+                                            <Input id="houseNumber" value={formData.houseNumber || ""} onChange={(e) => updateField("houseNumber", e.target.value)} />
+                                            {errors.houseNumber && <p className="text-red-500 text-sm">{errors.houseNumber}</p>}
+                                        </div>
+                                        <div className="col-span-1 space-y-2">
+                                            <Label htmlFor="flatNumber">Numer mieszkania</Label>
+                                            <Input id="flatNumber" value={formData.flatNumber || ""} onChange={(e) => updateField("flatNumber", e.target.value)} />
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="col-span-1 space-y-2">
+                                            <Label htmlFor="city">Miejscowość *</Label>
+                                            <Input id="city" value={formData.city || ""} onChange={(e) => updateField("city", e.target.value)} />
+                                            {errors.city && <p className="text-red-500 text-sm">{errors.city}</p>}
+                                        </div>
+                                        <div className="col-span-1 space-y-2">
+                                            <Label htmlFor="postalCode">Kod pocztowy *</Label>
+                                            <Input id="postalCode" value={formData.postalCode || ""} onChange={(e) => updateField("postalCode", e.target.value)} placeholder="00-000" maxLength={6} />
+                                            {errors.postalCode && <p className="text-red-500 text-sm">{errors.postalCode}</p>}
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div className="space-y-6">
-                                <h3 className="font-semibold text-lg">Dane kontaktowe</h3>
-                                <div className="space-y-2">
-                                    <Label>Telefon</Label>
-                                    <Input value={patient.phone || ""} readOnly />
-                                </div>
-
-                                <h3 className="font-semibold text-lg mt-8">Adres zamieszkania</h3>
-                                <div className="grid grid-cols-3 gap-4">
-                                    <div className="col-span-1 space-y-2">
-                                        <Label>Ulica</Label>
-                                        <Input value={patient.street || "-"} readOnly />
-                                    </div>
-                                    <div className="col-span-1 space-y-2">
-                                        <Label>Numer domu</Label>
-                                        <Input value={patient.houseNumber || "-"} readOnly />
-                                    </div>
-                                    <div className="col-span-1 space-y-2">
-                                        <Label>Numer mieszkania</Label>
-                                        <Input value={patient.flatNumber || "-"} readOnly />
-                                    </div>
-                                </div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="col-span-1 space-y-2">
-                                        <Label>Miejscowość</Label>
-                                        <Input value={patient.city || "-"} readOnly />
-                                    </div>
-                                    <div className="col-span-1 space-y-2">
-                                        <Label>Kod pocztowy</Label>
-                                        <Input value={patient.postalCode || "-"} readOnly />
-                                    </div>
-                                </div>
+                            <div className="mt-6">
+                                <Button type="submit" disabled={updatePatientMutation.isPending}>
+                                    {updatePatientMutation.isPending ? "Zapisywanie..." : "Zapisz zmiany"}
+                                </Button>
                             </div>
-                        </div>
+                        </form>
                     </TabsContent>
                     <TabsContent value="scheduled" className="mt-6">
                         <ScheduledVisits patientId={patient.id} />

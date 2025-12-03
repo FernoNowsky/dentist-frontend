@@ -66,6 +66,8 @@ export interface PatientCreateDto {
     postalCode?: string;
 }
 
+export type PatientUpdateDto = Omit<PatientCreateDto, 'keycloakId'>;
+
 export interface DiagnoseDictionaryResponseDto {
     id: number;
     name: string;
