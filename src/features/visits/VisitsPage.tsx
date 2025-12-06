@@ -217,7 +217,7 @@ export function VisitsPage() {
 
     const renderVisitTable = (visitsData: VisitResponseDto[], showPagination = false) => (
         <>
-            <div className="rounded-md border">
+            <div className="border rounded-md">
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -257,13 +257,13 @@ export function VisitsPage() {
                                         {visit.status === "PLANNED" && currentUser?.role === "ADMIN" && (
                                             <>
                                                 <Button size="sm" onClick={() => startVisitMutation.mutate(visit.id)}>
-                                                    <Stethoscope className="mr-2 h-4 w-4" />
+                                                    <Stethoscope className="w-4 h-4 mr-2" />
                                                     Przeprowadź
                                                 </Button>
                                                 <AlertDialog>
                                                     <AlertDialogTrigger asChild>
                                                         <Button size="sm" variant="destructive">
-                                                            <Trash2 className="mr-2 h-4 w-4" />
+                                                            <Trash2 className="w-4 h-4 mr-2" />
                                                             Odwołaj
                                                         </Button>
                                                     </AlertDialogTrigger>
@@ -290,7 +290,7 @@ export function VisitsPage() {
                                         {visit.status === "STARTED" && currentUser?.role === "ADMIN" && (
                                             <Button size="sm" asChild>
                                                 <Link to="/visits/$visitId/execution" params={{ visitId: visit.id }}>
-                                                    <Stethoscope className="mr-2 h-4 w-4" />
+                                                    <Stethoscope className="w-4 h-4 mr-2" />
                                                     Przeprowadź
                                                 </Link>
                                             </Button>
@@ -298,7 +298,7 @@ export function VisitsPage() {
                                         {visit.status === "COMPLETED" && (
                                             <Button size="sm" variant="outline" asChild>
                                                 <Link to="/visits/$visitId/details" params={{ visitId: visit.id }}>
-                                                    <FileText className="mr-2 h-4 w-4" />
+                                                    <FileText className="w-4 h-4 mr-2" />
                                                     Szczegóły wizyty
                                                 </Link>
                                             </Button>
@@ -345,7 +345,7 @@ export function VisitsPage() {
                                 onClick={() => setPage((p) => Math.max(0, p - 1))}
                                 disabled={page === 0 || isLoading}
                             >
-                                <ChevronLeft className="h-4 w-4" />
+                                <ChevronLeft className="w-4 h-4" />
                             </Button>
                             <Button
                                 variant="outline"
@@ -353,7 +353,7 @@ export function VisitsPage() {
                                 onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
                                 disabled={page >= totalPages - 1 || isLoading}
                             >
-                                <ChevronRight className="h-4 w-4" />
+                                <ChevronRight className="w-4 h-4" />
                             </Button>
                         </div>
                     </div>
@@ -363,7 +363,7 @@ export function VisitsPage() {
     );
 
     return (
-        <div className="space-y-6 py-8">
+        <div className="py-8 space-y-6">
             <div className="flex flex-col gap-2">
                 <h1 className="text-2xl font-bold text-primary">Wizyty</h1>
                 <p className="text-muted-foreground">
@@ -374,8 +374,8 @@ export function VisitsPage() {
             {startedVisits.length > 0 && (
                 <Card className="border-blue-200 bg-blue-50/30">
                     <CardHeader>
-                        <CardTitle className="text-primary flex items-center gap-2">
-                            <Play className="h-5 w-5" />
+                        <CardTitle className="flex items-center gap-2 text-primary">
+                            <Play className="w-5 h-5" />
                             Wizyty w trakcie
                         </CardTitle>
                         <CardDescription>
@@ -385,7 +385,7 @@ export function VisitsPage() {
                     <CardContent>
                         {isStartedLoading ? (
                             <div className="flex items-center justify-center py-4">
-                                <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                                <Loader2 className="w-6 h-6 animate-spin text-primary" />
                             </div>
                         ) : (
                             renderVisitTable(startedVisits, false)
@@ -402,7 +402,7 @@ export function VisitsPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="flex items-center gap-4 mb-6 flex-wrap">
+                    <div className="flex flex-wrap items-center gap-4 mb-6">
                         <div className="flex flex-col gap-2 w-[250px]">
                             <Label htmlFor="doctor-filter">Lekarz</Label>
                             <Select
@@ -470,11 +470,11 @@ export function VisitsPage() {
                                     <Button
                                         variant="outline"
                                         className={cn(
-                                            "w-full justify-start text-left font-normal",
+                                            "justify-start text-left font-normal w-[280px]",
                                             !dateRange?.from && "text-muted-foreground"
                                         )}
                                     >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
+                                        <CalendarIcon className="w-4 h-4 mr-2" />
                                         {formatDateRange()}
                                     </Button>
                                 </PopoverTrigger>
@@ -508,10 +508,10 @@ export function VisitsPage() {
 
                     {isLoading || (debouncedPatientFilter && isPatientSearchLoading) ? (
                         <div className="flex items-center justify-center py-12">
-                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                            <Loader2 className="w-8 h-8 animate-spin text-primary" />
                         </div>
                     ) : visits.length === 0 ? (
-                        <div className="text-center py-12 text-muted-foreground">
+                        <div className="py-12 text-center text-muted-foreground">
                             {debouncedPatientFilter && !searchedPatientId ? "Nie znaleziono pacjenta o podanym numerze PESEL." : "Brak wizyt spełniających kryteria."}
                         </div>
                     ) : (

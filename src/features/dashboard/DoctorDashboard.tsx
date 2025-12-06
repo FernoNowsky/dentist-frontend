@@ -50,7 +50,8 @@ export function DoctorDashboard() {
                 doctorId: currentUser.id,
                 status: "PLANNED",
                 size: 100,
-                sort: ["dateTimeStart,ASC"],
+                sortBy: "dateTimeStart",
+                sortDirection: "ASC",
             };
 
             return apiRequest<PageResponseDto<VisitResponseDto>>("/visits", { params });
@@ -69,11 +70,11 @@ export function DoctorDashboard() {
                 <h2 className="text-2xl font-bold text-primary">
                     Zaplanowane wizyty, {date ? format(date, "d MMMM yyyy", { locale: pl }) : "Wybierz datę"}
                 </h2>
-                <p className="text-muted-foreground mb-6">
+                <p className="mb-6 text-muted-foreground">
                     Tutaj znajdziesz swoje zaplanowane wizyty
                 </p>
 
-                <div className="space-y-4 overflow-y-auto flex-1 pr-4">
+                <div className="flex-1 pr-4 space-y-4 overflow-y-auto">
                     {isLoading ? (
                         <div className="text-muted-foreground">Ładowanie...</div>
                     ) : visits.length === 0 ? (
@@ -81,16 +82,16 @@ export function DoctorDashboard() {
                     ) : (
                         visits.map((visit) => (
                             <Card key={visit.id}>
-                                <CardContent className="p-6 flex flex-col justify-between">
+                                <CardContent className="flex flex-col justify-between p-6">
                                     <div>
-                                        <h3 className="font-bold text-lg">
+                                        <h3 className="text-lg font-bold">
                                             {visit.patient.firstName} {visit.patient.lastName}, {format(new Date(visit.dateTimeStart), "d MMMM yyyy, HH:mm", { locale: pl })}
                                         </h3>
-                                        <p className="text-muted-foreground text-sm">PESEL: {visit.patient.pesel || "Brak"}</p>
+                                        <p className="text-sm text-muted-foreground">PESEL: {visit.patient.pesel || "Brak"}</p>
                                     </div>
-                                    <div className="flex gap-2 flex-col sm:flex-row mt-4 justify-between">
+                                    <div className="flex flex-col justify-between gap-2 mt-4 sm:flex-row">
                                         <Button onClick={() => startVisitMutation.mutate(visit.id)}>
-                                            <Stethoscope className="mr-2 h-4 w-4" />
+                                            <Stethoscope className="w-4 h-4 mr-2" />
                                             Przeprowadź wizytę
                                         </Button>
                                         <AlertDialog>
@@ -125,7 +126,7 @@ export function DoctorDashboard() {
                 </div>
             </div>
 
-            <div className="w-full lg:w-fit flex justify-center lg:block">
+            <div className="flex justify-center w-full lg:w-fit lg:block">
                 <Card>
                     <CardContent className="p-4">
                         <Calendar
@@ -133,7 +134,7 @@ export function DoctorDashboard() {
                             selected={date}
                             onSelect={setDate}
                             locale={pl}
-                            className="rounded-md border w-full"
+                            className="w-full border rounded-md"
                             classNames={{
                                 month: "space-y-4 w-full",
                                 table: "w-full border-collapse space-y-1",
